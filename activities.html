@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INFOTESS Activities - SDMS</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <div class="container" style="padding: 40px 0;">
+        <h1>INFOTESS Activities</h1>
+        <div class="card-grid" id="activities-container">
+            <!-- Activities will be loaded here dynamically via JS -->
+            <p>Loading activities...</p>
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="js/components.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('api/public/activities.php')
+                .then(res => res.json())
+                .then(data => {
+                    const container = document.getElementById('activities-container');
+                    if (data.ok && data.activities && data.activities.length > 0) {
+                        let html = '';
+                        data.activities.forEach(activity => {
+                            const imgUrl = activity.image_url ? activity.image_url : 'images/default-activity.jpg';
+                            const title = activity.title.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                            const dateObj = new Date(activity.activity_date);
+                            const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                            const desc = activity.description ? activity.description.replace(/</g, '&lt;').replace(/>/g, '&gt;') : '';
+                            
+                            let registerBtn = '';
+                            if (activity.registration_link) {
+                                registerBtn = `<a href="${activity.registration_link.replace(/"/g, '&quot;')}" class="btn-primary">Register</a>`;
+                            }
+
+                            html += `
+                                <div class="card">
+                                    <img src="${imgUrl}" alt="Activity">
+                                    <div class="card-content">
+                                        <h3>${title}</h3>
+                                        <p class="date">${formattedDate}</p>
+                                        <p>${desc}</p>
+                                        ${registerBtn}
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        container.innerHTML = html;
+                    } else {
+                        container.innerHTML = '<p>No upcoming activities at the moment.</p>';
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('activities-container').innerHTML = '<p>Error loading activities.</p>';
+                });
+        });
+    </script>
+</body>
+</html>

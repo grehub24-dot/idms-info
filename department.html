@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Department Overview - INFOTESS</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <div class="container" style="padding: 40px 0;">
+        <h1>Department Overview</h1>
+        
+        <!-- Department Content -->
+        <div class="department-content" id="overview-container" style="margin-bottom: 50px;">
+            <p>Loading...</p>
+        </div>
+
+        <!-- Faculty & Staff Section -->
+        <h2 class="section-title">Meet Our Faculty & Staff</h2>
+        <div class="card-grid" id="staff-container">
+            <p>Loading staff...</p>
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="js/components.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const defaultOverviewHtml = `
+                <div class="card" style="margin-bottom: 20px;">
+                    <div class="card-content">
+                        <h2 style="margin-top: 0;">Department Overview</h2>
+                        <p>The Department of Information Technology Education (DITE) is a leading department in the Faculty of Applied Sciences and Mathematics Education (FASME) at AAMUSTED.</p>
+                        <p>We are dedicated to training competent teachers and professionals in Information Technology who can contribute meaningfully to national development.</p>
+                    </div>
+                </div>
+
+                <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                    <div class="card">
+                        <div class="card-content">
+                            <h3 style="margin-top: 0;">Our Mission</h3>
+                            <p>To provide high-quality education in Information Technology, fostering innovation, research, and community service.</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-content">
+                            <h3 style="margin-top: 0;">Programs Offered</h3>
+                            <ul style="margin: 0; padding-left: 18px;">
+                                <li>B.Sc. Information Technology Education</li>
+                                <li>Diploma in Information Technology</li>
+                                <li>M.Phil. Information Technology</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const defaultStaff = [
+                { name: 'Prof. Yarhands Dissou Arthur', role: 'Dean, FASME', image: 'images/PROF-YARHANDS.png' },
+                { name: 'Dr. George Asante', role: 'H.O.D, Department of IT Education', image: 'images/George-Asante.png' },
+                { name: 'Prof. Francis Ohene Boateng', role: 'Associate Professor', image: 'images/PROF-FO-BOATENG.png' },
+                { name: 'Prof. Ebenezer Bonyah', role: 'Professor', image: 'images/PROF_BONYAH-.png' },
+                { name: 'Dr. Adasa Nkrumah Kofi Frimpong', role: 'Ag. Head, Academic & Admin Computing', image: 'images/Dr.-Adasa-Nkrumah-K.-F.jpg' },
+                { name: 'Rev. Dr. Benjamin Adu Obeng', role: 'Lecturer', image: 'images/Rev.-Dr.-Adu-Obeng.png' },
+                { name: 'Dr. Joseph Frank Gordon', role: 'Lecturer', image: 'images/Dr.-Joseph-Gordon.png' },
+                { name: 'Dr. Emmanuel Akweittey', role: 'Senior Lecturer', image: 'images/AKWEITTEY-.jpg' },
+                { name: 'Dr. Ernest Larbi', role: 'Lecturer', image: 'images/Mr.-Ernest-Larbi.png' },
+                { name: 'Mr. Franco Osei-Wusu', role: 'Assistant Lecturer', image: 'images/franco.png' },
+                { name: 'Mr. Kennedy Gyimah', role: 'Lecturer', image: 'images/Kennedy-Gyimah.png' }
+            ];
+
+            const renderStaff = (staffList) => {
+                const staffContainer = document.getElementById('staff-container');
+                if (!staffContainer) return;
+
+                const safe = (s) => String(s || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                staffContainer.innerHTML = staffList.map(staff => {
+                    const name = safe(staff.name);
+                    const role = safe(staff.role);
+                    const img = staff.image || 'images/infotess.png';
+                    return `
+                        <a href="staff_profile.html?name=${encodeURIComponent(staff.name || '')}" class="card" style="text-align: center; text-decoration: none; color: inherit; display: block;">
+                            <img src="${img}" alt="${(staff.name || '').replace(/"/g, '&quot;')}" style="height: 250px; object-fit: cover; width: 100%;">
+                            <div class="card-content">
+                                <h3 style="margin-bottom: 5px;">${name}</h3>
+                                <p style="color: var(--secondary-color); font-weight: bold;">${role}</p>
+                            </div>
+                        </a>
+                    `;
+                }).join('');
+            };
+
+            fetch('api/public/department.php')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.ok) {
+                        const overviewContainer = document.getElementById('overview-container');
+                        if (data.overview) {
+                            overviewContainer.innerHTML = data.overview;
+                        } else {
+                            overviewContainer.innerHTML = defaultOverviewHtml;
+                        }
+
+                        if (data.staff && data.staff.length > 0) {
+                            renderStaff(data.staff);
+                        } else {
+                            renderStaff(defaultStaff);
+                        }
+                    }
+                })
+                .catch(err => {
+                    const overviewContainer = document.getElementById('overview-container');
+                    if (overviewContainer) overviewContainer.innerHTML = defaultOverviewHtml;
+                    renderStaff(defaultStaff);
+                });
+        });
+    </script>
+</body>
+</html>

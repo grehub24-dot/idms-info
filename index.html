@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INFOTESS - SDMS</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>Welcome to INFOTESS</h1>
+        <p>Information Technology Students’ Society of AAMUSTED. Empowering students through technology, innovation, and leadership.</p>
+        <a href="about.html" class="btn-cta">Learn More</a>
+    </section>
+
+    <!-- About Preview -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">Who We Are</h2>
+            <div style="text-align: center; max-width: 800px; margin: 0 auto;">
+                <p>INFOTESS is the official student body for the Department of Information Technology Education (DITE) at AAMUSTED. We are dedicated to bridging the gap between academic theory and industry practice through workshops, seminars, and collaborative projects.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Activities/News -->
+    <section class="section" style="background: var(--light-bg);">
+        <div class="container">
+            <h2 class="section-title">Latest Activities</h2>
+            <div class="card-grid" id="activities-container">
+                <!-- Activities will be loaded here dynamically via JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="section" style="text-align: center;">
+        <div class="container">
+            <h2>Ready to join the movement?</h2>
+            <p style="margin: 20px 0;">Become an active member of INFOTESS today.</p>
+            <a href="contact.html" class="btn-cta">Contact Us</a>
+        </div>
+    </section>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="js/components.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('api/public/activities.php?limit=3')
+                .then(res => res.json())
+                .then(data => {
+                    const container = document.getElementById('activities-container');
+                    if (data.ok && data.activities.length > 0) {
+                        let html = '';
+                        data.activities.forEach(activity => {
+                            const imgUrl = activity.image_url ? activity.image_url : 'images/default-activity.jpg';
+                            const title = activity.title.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                            const desc = activity.description ? activity.description.substring(0, 100).replace(/</g, '&lt;').replace(/>/g, '&gt;') + '...' : '';
+                            html += `
+                                <div class="card">
+                                    <img src="${imgUrl}" alt="Activity">
+                                    <div class="card-content">
+                                        <h3 class="card-title">${title}</h3>
+                                        <p>${desc}</p>
+                                        <a href="activities.html" style="color: var(--primary-color); font-weight: bold; margin-top: 10px; display: inline-block;">Read More &rarr;</a>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        container.innerHTML = html;
+                    } else {
+                        // Static placeholders if no DB data
+                        container.innerHTML = `
+                            <div class="card">
+                                <img src="images/event1.jpg" alt="Event 1" style="background:#ccc;">
+                                <div class="card-content">
+                                    <h3 class="card-title">Annual Tech Week</h3>
+                                    <p>Join us for a week of coding, innovation, and networking with industry experts.</p>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <img src="images/event2.jpg" alt="Event 2" style="background:#ccc;">
+                                <div class="card-content">
+                                    <h3 class="card-title">Freshers' Akwaaba</h3>
+                                    <p>Welcoming our new students to the DITE family with fun and orientation.</p>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <img src="images/event3.jpg" alt="Event 3" style="background:#ccc;">
+                                <div class="card-content">
+                                    <h3 class="card-title">Web Dev Bootcamp</h3>
+                                    <p>A hands-on session on modern web development technologies.</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(err => console.error('Error fetching activities:', err));
+        });
+    </script>
+</body>
+</html>

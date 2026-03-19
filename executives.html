@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Leadership - INFOTESS</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <div class="hero" style="height: 50vh;">
+        <h1>Our Leadership</h1>
+        <p>Meet the executives serving the 2025/2026 administration.</p>
+    </div>
+
+    <div class="section">
+        <div class="container">
+            <div class="card-grid" id="executives-container">
+                <p>Loading executives...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="js/components.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('api/public/executives.php')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.ok && data.executives && data.executives.length > 0) {
+                        const container = document.getElementById('executives-container');
+                        let html = '';
+                        data.executives.forEach(exec => {
+                            const imgUrl = exec.image_url ? exec.image_url : 'images/user-placeholder.png';
+                            
+                            let linksHtml = '';
+                            if (exec.email) linksHtml += `<a href="mailto:${exec.email.replace(/"/g, '&quot;')}" style="color: var(--primary-color); margin: 0 10px;"><i class="fas fa-envelope"></i></a>`;
+                            if (exec.linkedin_url) linksHtml += `<a href="${exec.linkedin_url.replace(/"/g, '&quot;')}" style="color: var(--primary-color); margin: 0 10px;"><i class="fab fa-linkedin"></i></a>`;
+                            if (exec.github_url) linksHtml += `<a href="${exec.github_url.replace(/"/g, '&quot;')}" style="color: var(--primary-color); margin: 0 10px;"><i class="fab fa-github"></i></a>`;
+
+                            html += `
+                                <div class="card" style="text-align: center;">
+                                    <div style="padding: 20px;">
+                                        <img src="${imgUrl}" alt="${exec.full_name.replace(/"/g, '&quot;')}" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover;">
+                                    </div>
+                                    <div class="card-content">
+                                        <h3 class="card-title">${exec.full_name.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</h3>
+                                        <p style="color: var(--secondary-color); font-weight: bold;">${exec.position.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+                                        <p style="margin: 10px 0;">${(exec.bio || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+                                        <div style="margin-top: 15px;">
+                                            ${linksHtml}
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        container.innerHTML = html;
+                    } else {
+                        document.getElementById('executives-container').innerHTML = '<p>No executives found.</p>';
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('executives-container').innerHTML = '<p>Error loading executives.</p>';
+                });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alumni Network - INFOTESS</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <div class="hero" style="height: 50vh;">
+        <h1>Alumni Network</h1>
+        <p>Connect with former students and industry professionals.</p>
+    </div>
+
+    <div class="section">
+        <div class="container">
+            <div class="card-grid" id="alumni-container">
+                <p style="text-align: center; width: 100%;">Loading alumni...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="js/components.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('api/public/alumni.php')
+                .then(res => res.json())
+                .then(data => {
+                    const container = document.getElementById('alumni-container');
+                    if (data.ok && data.alumni && data.alumni.length > 0) {
+                        let html = '';
+                        data.alumni.forEach(alum => {
+                            const imgUrl = alum.image_url ? alum.image_url : 'images/user-placeholder.png';
+                            html += `
+                                <div class="card">
+                                    <div style="padding: 20px; text-align: center;">
+                                        <img src="${imgUrl}" alt="${alum.full_name.replace(/"/g, '&quot;')}" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover;">
+                                    </div>
+                                    <div class="card-content">
+                                        <h3 class="card-title">${alum.full_name.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</h3>
+                                        <p style="color: var(--secondary-color); font-weight: bold;">Class of ${alum.graduation_year}</p>
+                                        <p style="margin: 10px 0;"><strong>${(alum.position || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</strong> at ${(alum.company || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+                                        <p style="font-style: italic; font-size: 0.9rem; margin-top: 10px;">"${(alum.testimonial || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}"</p>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        container.innerHTML = html;
+                    } else {
+                        container.innerHTML = '<p style="text-align: center; width: 100%;">Our alumni records are being updated. Check back soon!</p>';
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('alumni-container').innerHTML = '<p style="text-align: center; width: 100%;">Error loading alumni.</p>';
+                });
+        });
+    </script>
+</body>
+</html>

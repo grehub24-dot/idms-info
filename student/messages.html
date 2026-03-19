@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages - INFOTESS</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .msg-card {
+            border-left: 4px solid var(--primary-color);
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+            position: relative;
+        }
+        .msg-card:hover {
+            background: #f8f9fa;
+        }
+        .msg-card.broadcast {
+            border-left-color: #003366;
+        }
+        .msg-card.unread::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 10px;
+            height: 10px;
+            background: #dc3545;
+            border-radius: 50%;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 25px;
+            border-radius: 8px;
+            width: 500px;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            max-width: 90%;
+        }
+        .close-btn {
+            position: absolute;
+            right: 15px;
+            top: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="../index.html" style="color: white; font-size: 1.2rem; font-weight: bold; display: block; margin-bottom: 10px;">
+                    <img src="../images/infotess.png" alt="Logo" height="30"> INFOTESS
+                </a>
+                <h3>My Portal</h3>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="profile.html"><i class="fas fa-user"></i> My Profile</a></li>
+                <li><a href="messages.html" class="active"><i class="fas fa-envelope"></i> Messages <span id="sidebar-msg-badge"></span></a></li>
+                <li><a href="history.html"><i class="fas fa-history"></i> Payment History</a></li>
+                <li><a href="../logout.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <h2>Message Center</h2>
+                <button onclick="document.getElementById('sendModal').style.display='block'" class="btn-login"><i class="fas fa-paper-plane"></i> Contact Admin</button>
+                <div class="hamburger-dashboard" style="display: none; cursor: pointer; font-size: 1.5rem;">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </div>
+
+            <div id="alert-container"></div>
+
+            <div class="section">
+                <h3>Announcements & Broadcasts</h3>
+                <div id="broadcasts-container">
+                    <p>Loading...</p>
+                </div>
+            </div>
+
+            <div class="section" style="margin-top:30px;">
+                <h3>Direct Messages</h3>
+                <div id="direct-messages-container">
+                    <p>Loading...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- View Message Modal -->
+    <div id="viewModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="document.getElementById('viewModal').style.display='none'">&times;</span>
+            <h3 id="viewTitle"></h3>
+            <p id="viewDate" style="font-size: 0.8rem; color: #888; margin-bottom: 15px;"></p>
+            <div id="viewContent" style="line-height: 1.6; color: #333; margin-bottom: 20px; white-space: pre-wrap;"></div>
+            
+            <div style="text-align: right; border-top: 1px solid #eee; padding-top: 15px;">
+                <button type="button" class="btn-login" id="replyBtn" onclick="document.getElementById('viewModal').style.display='none'; document.getElementById('sendModal').style.display='block';">
+                    <i class="fas fa-reply"></i> Reply to Admin
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Send Message Modal -->
+    <div id="sendModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="document.getElementById('sendModal').style.display='none'">&times;</span>
+            <h3>Send Message to Admin</h3>
+            <form id="send-form" style="margin-top: 20px;">
+                <div class="form-group">
+                    <label>Subject</label>
+                    <input type="text" name="subject" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Content</label>
+                    <textarea name="content" class="form-control" rows="5" required></textarea>
+                </div>
+                <button type="submit" class="btn-login" style="width: 100%;">Send Message</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            loadMessages();
+
+            // Send Message
+            const sendForm = document.getElementById('send-form');
+            sendForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const formData = new FormData(sendForm);
+                const data = {
+                    action: 'send_to_admin',
+                    subject: formData.get('subject'),
+                    content: formData.get('content')
+                };
+
+                fetch('../api/student/messages.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.ok) {
+                        alert(res.message);
+                        document.getElementById('sendModal').style.display = 'none';
+                        sendForm.reset();
+                    } else {
+                        alert(res.error);
+                    }
+                });
+            });
+
+            // Mobile menu toggle
+            const hamburger = document.querySelector('.hamburger-dashboard');
+            const sidebar = document.querySelector('.sidebar');
+            if (hamburger && sidebar) {
+                hamburger.addEventListener('click', () => {
+                    sidebar.classList.toggle('active');
+                });
+            }
+        });
+
+        function loadMessages() {
+            fetch('../api/student/messages.php')
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.ok) return;
+
+                    const broadcastsContainer = document.getElementById('broadcasts-container');
+                    const directContainer = document.getElementById('direct-messages-container');
+                    const readIds = data.read_ids.map(id => parseInt(id));
+
+                    // Broadcasts
+                    if (data.broadcasts.length === 0) {
+                        broadcastsContainer.innerHTML = '<p>No announcements at this time.</p>';
+                    } else {
+                        broadcastsContainer.innerHTML = data.broadcasts.map(msg => renderMessageCard(msg, readIds, true)).join('');
+                    }
+
+                    // Direct Messages
+                    if (data.direct_messages.length === 0) {
+                        directContainer.innerHTML = '<p>No direct messages.</p>';
+                    } else {
+                        directContainer.innerHTML = data.direct_messages.map(msg => renderMessageCard(msg, readIds, false)).join('');
+                    }
+
+                    // Update Badge
+                    const unreadCount = data.broadcasts.filter(m => !readIds.includes(m.id)).length + 
+                                       data.direct_messages.filter(m => !readIds.includes(m.id)).length;
+                    
+                    if (unreadCount > 0) {
+                        document.getElementById('sidebar-msg-badge').innerHTML = `
+                            <span class="badge" style="background:#dc3545; color:white; padding:2px 6px; border-radius:50%; font-size:0.7rem;">${unreadCount}</span>
+                        `;
+                    } else {
+                        document.getElementById('sidebar-msg-badge').innerHTML = '';
+                    }
+                });
+        }
+
+        function renderMessageCard(msg, readIds, isBroadcast) {
+            const date = new Date(msg.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            const isRead = readIds.includes(msg.id);
+            const classList = `card msg-card ${isBroadcast ? 'broadcast' : ''} ${isRead ? '' : 'unread'}`;
+            
+            return `
+                <div class="${classList}" onclick="viewMessage(${msg.id}, '${msg.title.replace(/'/g, "\\'")}', '${msg.content.replace(/'/g, "\\'").replace(/\n/g, "\\n")}', '${date}')">
+                    <div style="display:flex; justify-content:space-between;">
+                        <strong>${msg.title}</strong>
+                        <small>${date}</small>
+                    </div>
+                    <p style="margin-top:5px; color:#666;">${msg.content.substring(0, 100)}${msg.content.length > 100 ? '...' : ''}</p>
+                </div>
+            `;
+        }
+
+        function viewMessage(id, title, content, date) {
+            document.getElementById('viewTitle').textContent = title;
+            document.getElementById('viewDate').textContent = date;
+            document.getElementById('viewContent').textContent = content;
+            document.getElementById('viewModal').style.display = 'block';
+
+            // Mark as read
+            fetch('../api/student/messages.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'mark_read', message_id: id })
+            }).then(() => {
+                // Refresh to update unread dots and badge
+                // But don't do it immediately to not flicker
+                setTimeout(loadMessages, 500);
+            });
+        }
+    </script>
+</body>
+</html>

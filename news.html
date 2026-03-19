@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News & Updates - INFOTESS</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <div class="hero" style="height: 40vh; background: linear-gradient(rgba(0,51,102,0.8), rgba(0,51,102,0.8)), url('images/aamusted.jpg') center/cover;">
+        <h1>News & Updates</h1>
+        <p>Stay informed with the latest news from AAMUSTED</p>
+    </div>
+
+    <div class="section">
+        <div class="container">
+            <h2 class="section-title">Latest News</h2>
+            
+            <div class="card-grid" id="news-container">
+                <p>Loading news...</p>
+            </div>
+            
+            <div style="text-align: center; margin-top: 40px;">
+                <a href="https://aamusted.edu.gh/news/" target="_blank" class="btn-primary">View All News on Official Site</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="js/components.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('api/public/news.php')
+                .then(res => res.json())
+                .then(data => {
+                    const container = document.getElementById('news-container');
+                    if (data.ok && data.news && data.news.length > 0) {
+                        let html = '';
+                        data.news.forEach(news => {
+                            const imgUrl = news.image_url ? news.image_url : 'images/aamusted.jpg';
+                            const dateObj = new Date(news.published_at);
+                            const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                            const contentSnippet = (news.content || '').substring(0, 150).replace(/</g, '&lt;').replace(/>/g, '&gt;') + '...';
+
+                            html += `
+                                <div class="card">
+                                    <div style="height: 200px; overflow: hidden;">
+                                        <img src="${imgUrl}" alt="News Image" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s;">
+                                    </div>
+                                    <div class="card-content">
+                                        <span style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 5px;">
+                                            <i class="far fa-calendar-alt"></i> ${formattedDate}
+                                        </span>
+                                        <h3 style="font-size: 1.2rem; margin-bottom: 10px; color: var(--primary-color);">
+                                            <a href="${news.source_url.replace(/"/g, '&quot;')}" target="_blank" style="text-decoration: none; color: inherit;">
+                                                ${news.title.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                                            </a>
+                                        </h3>
+                                        <p style="color: #555; font-size: 0.95rem; line-height: 1.6;">
+                                            ${contentSnippet}
+                                        </p>
+                                        <a href="${news.source_url.replace(/"/g, '&quot;')}" target="_blank" style="display: inline-block; margin-top: 15px; color: var(--secondary-color); font-weight: bold;">Read More &rarr;</a>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        container.innerHTML = html;
+                    } else {
+                        container.innerHTML = '<p>No news items found.</p>';
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('news-container').innerHTML = '<p>Error loading news.</p>';
+                });
+        });
+    </script>
+</body>
+</html>

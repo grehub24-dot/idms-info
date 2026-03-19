@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Profile - INFOTESS</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <div class="section" style="background: var(--light-bg);">
+        <div class="container" id="profile-container">
+            <a href="department.html" style="display: inline-block; margin-bottom: 20px; color: var(--primary-color); font-weight: bold;">&larr; Back to Department</a>
+            <p>Loading profile...</p>
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="js/components.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const staffName = urlParams.get('name');
+
+            if (!staffName) {
+                document.getElementById('profile-container').innerHTML = `
+                    <div style="padding: 100px 0; text-align: center;">
+                        <h2>Staff Member Not Found</h2>
+                        <a href="department.html" class="btn-primary">Back to Department</a>
+                    </div>
+                `;
+                return;
+            }
+
+            fetch('api/public/department.php')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.ok && data.staff) {
+                        const staff = data.staff.find(s => s.name === staffName);
+                        if (staff) {
+                            let researchHtml = '';
+                            if (staff.research && staff.research.length > 0) {
+                                researchHtml = staff.research.map(r => `<li><i class="fas fa-check-circle" style="color: var(--secondary-color); margin-right: 10px;"></i>${r}</li>`).join('');
+                            }
+
+                            document.getElementById('profile-container').innerHTML = `
+                                <a href="department.html" style="display: inline-block; margin-bottom: 20px; color: var(--primary-color); font-weight: bold;">&larr; Back to Department</a>
+                                <div class="card" style="display: flex; flex-direction: column; overflow: hidden; background: white;">
+                                    <div style="display: flex; flex-wrap: wrap;">
+                                        <div style="flex: 1; min-width: 300px;">
+                                            <img src="${staff.image}" alt="${staff.name.replace(/"/g, '&quot;')}" style="width: 100%; height: 100%; object-fit: cover; min-height: 400px;">
+                                        </div>
+                                        <div style="flex: 2; padding: 40px; min-width: 300px;">
+                                            <h1 style="color: var(--primary-color); margin-bottom: 10px;">${staff.name.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</h1>
+                                            <p style="font-size: 1.2rem; color: var(--secondary-color); font-weight: bold; margin-bottom: 20px;">${staff.role.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+                                            
+                                            <div style="margin-bottom: 30px;">
+                                                <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">Biography</h3>
+                                                <p style="line-height: 1.8;">${staff.bio.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+                                            </div>
+
+                                            <div style="margin-bottom: 30px;">
+                                                <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">Research Interests</h3>
+                                                <ul style="list-style: none; padding: 0;">
+                                                    ${researchHtml}
+                                                </ul>
+                                            </div>
+
+                                            <div>
+                                                <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">Contact Information</h3>
+                                                <p><i class="fas fa-envelope" style="color: var(--primary-color); margin-right: 10px;"></i> <a href="mailto:${staff.email}" style="color: inherit;">${staff.email}</a></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            document.getElementById('profile-container').innerHTML = `
+                                <div style="padding: 100px 0; text-align: center;">
+                                    <h2>Staff Member Not Found</h2>
+                                    <a href="department.html" class="btn-primary">Back to Department</a>
+                                </div>
+                            `;
+                        }
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('profile-container').innerHTML = '<p>Error loading profile.</p>';
+                });
+        });
+    </script>
+</body>
+</html>

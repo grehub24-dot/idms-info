@@ -1,0 +1,111 @@
+
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset='UTF-8'>
+                    <style>
+                        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
+                        .email-container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+                        .header { background-color: #1a9e65; color: white; text-align: center; padding: 40px 20px; }
+                        .header h1 { margin: 0; font-size: 28px; }
+                        .header p { margin: 10px 0 0 0; font-size: 14px; }
+                        .content { padding: 30px; color: #333; }
+                        .receipt-box { border: 1px solid #1a9e65; border-radius: 8px; padding: 20px; margin-top: 20px; }
+                        .receipt-title { text-align: center; color: #1a9e65; margin-bottom: 20px; }
+                        .receipt-title h2 { margin: 0; font-size: 20px; }
+                        .receipt-title p { margin: 5px 0 0 0; color: #555; font-size: 14px; }
+                        .receipt-row { padding: 12px 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
+                        .receipt-row:last-child { border-bottom: none; }
+                        .amount-box { background-color: #1a9e65; color: white; text-align: center; padding: 20px; border-radius: 8px; margin-top: 20px; }
+                        .amount-box p { margin: 0 0 5px 0; font-size: 14px; }
+                        .amount-box h2 { margin: 0; font-size: 28px; }
+                        .paid-badge { background-color: #1a9e65; color: white; padding: 5px 15px; border-radius: 15px; display: inline-block; margin-top: 15px; font-weight: bold; font-size: 14px; }
+                        .notes { margin-top: 30px; font-size: 12px; color: #333; }
+                        .notes ul { padding-left: 20px; }
+                        .footer { text-align: center; padding: 30px; font-size: 12px; color: #666; border-top: 1px solid #eee; }
+                        .footer a { color: #0056b3; text-decoration: none; }
+                    </style>
+                </head>
+                <body>
+                    <div class='email-container'>
+                        <div class='header'>
+                            <h1>✓ Payment Received!</h1>
+                            <p>AAMUSTED - Infotess Dues Payment Confirmation</p>
+                        </div>
+                        <div class='content'>
+                            <p>Dear <strong>Ben Anan</strong>,</p>
+                            <p>Your payment has been successfully received and recorded in our system.</p>
+                            
+                            <div class='receipt-box'>
+                                <div class='receipt-title'>
+                                    <h2>OFFICIAL RECEIPT</h2>
+                                    <p>Receipt No: SDMS-2026-0014</p>
+                                </div>
+                                
+                                <div class='receipt-row'>
+                                    <span style='color: #666;'>Student Name:</span>
+                                    <strong>Ben Anan</strong>
+                                </div>
+                                <div class='receipt-row'>
+                                    <span style='color: #666;'>Index Number:</span>
+                                    <strong>5230100408</strong>
+                                </div>
+                                <div class='receipt-row'>
+                                    <span style='color: #666;'>Level:</span>
+                                    <strong>Level 300</strong>
+                                </div>
+                                <div class='receipt-row'>
+                                    <span style='color: #666;'>Class:</span>
+                                    <strong>Class ITE - E</strong>
+                                </div>
+                                <div class='receipt-row'>
+                                    <span style='color: #666;'>Academic Year:</span>
+                                    <strong>2025/2026</strong>
+                                </div>
+                                <div class='receipt-row'>
+                                    <span style='color: #666;'>Semester:</span>
+                                    <strong>1</strong>
+                                </div>
+                                <div class='receipt-row'>
+                                    <span style='color: #666;'>Payment Method:</span>
+                                    <strong>Cash</strong>
+                                </div>
+                                <div class='receipt-row'>
+                                    <span style='color: #666;'>Payment Date:</span>
+                                    <strong>2026-03-18</strong>
+                                </div>
+                                
+                                <div class='amount-box'>
+                                    <p>Amount Paid</p>
+                                    <h2>GH₵ 10.00</h2>
+                                </div>
+                                
+                                <div style='text-align: center; margin-top: 20px;'>
+                                    <img src='https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=http%3A%2F%2Flocalhost%2FGroup+Project%2FInfotess%2Fverify_public.php%3Freceipt%3DSDMS-2026-0014' alt='QR Code' style='width: 100px; height: 100px; margin-bottom: 10px;' />
+                                    <br>
+                                    <div class='paid-badge'>✓ PAID</div>
+                                </div>
+                            </div>
+                            
+                            <div class='notes'>
+                                <strong>Important Notes:</strong>
+                                <ul>
+                                    <li>Keep this email for your records</li>
+                                    <li>This receipt is valid for graduation clearance</li>
+                                    <li>You can access this receipt anytime from the system</li>
+                                    <li>Receipt Number: <strong>SDMS-2026-0014</strong></li>
+                                </ul>
+                                <p>Thank you for your prompt payment!</p>
+                            </div>
+                        </div>
+                        
+                        <div class='footer'>
+                            <p><strong>AAMUSTED - Infotess - Finance Office</strong></p>
+                            <p><a href='http://usted.edu.gh'>usted.edu.gh</a>, Kumasi, Ghana</p>
+                            <p>Phone: +233 24 091 8031</p>
+                            <p style='color: #999; margin-top: 20px;'>This is an automated email. Please do not reply to this message.<br>For inquiries, contact the finance office directly.</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                

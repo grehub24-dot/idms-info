@@ -1,0 +1,26 @@
+{
+  "functions": {
+    "backend/api/**/*.php": { "runtime": "vercel-php@0.6.0" },
+    "backend/admin/**/*.php": { "runtime": "vercel-php@0.6.0" },
+    "backend/student/**/*.php": { "runtime": "vercel-php@0.6.0" },
+    "backend/*.php": { "runtime": "vercel-php@0.6.0" }
+  },
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/backend/api/$1"
+    },
+    {
+      "src": "/admin/(students|payments|reports|verify|users|messaging|inbox|module_settings|settings)$",
+      "dest": "/backend/admin/$1.php"
+    },
+    {
+      "src": "/admin/(.*\\.php)",
+      "dest": "/backend/admin/$1"
+    },
+    {
+      "src": "/student/(.*\\.php)",
+      "dest": "/backend/student/$1"
+    }
+  ]
+}

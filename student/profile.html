@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - INFOTESS</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="../index.html" style="color: white; font-size: 1.2rem; font-weight: bold; display: block; margin-bottom: 10px;">
+                    <img src="../images/infotess.png" alt="Logo" height="30"> INFOTESS
+                </a>
+                <h3>My Portal</h3>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="profile.html" class="active"><i class="fas fa-user"></i> My Profile</a></li>
+                <li><a href="messages.html"><i class="fas fa-envelope"></i> Messages <span id="msg-badge-container"></span></a></li>
+                <li><a href="history.html"><i class="fas fa-history"></i> Payment History</a></li>
+                <li><a href="../logout.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <h2>My Profile</h2>
+                <div class="hamburger-dashboard" style="display: none; cursor: pointer; font-size: 1.5rem;">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </div>
+
+            <div id="alert-container"></div>
+
+            <div class="card" style="max-width: 800px; margin: 0 auto; padding: 30px;">
+                <h3>Personal Information</h3>
+                <form id="profile-form" enctype="multipart/form-data">
+                    <div class="form-group" style="text-align:center; margin-bottom: 30px;">
+                        <img id="profile-img" src="../images/user-placeholder.png" alt="Profile Picture" style="width:150px; height:150px; border-radius:50%; object-fit:cover; margin-bottom:10px; border: 3px solid #eee;">
+                        <br>
+                        <label for="profile_picture" class="btn-login" style="cursor:pointer; display:inline-block; font-size: 0.9rem;">
+                            <i class="fas fa-camera"></i> Change Picture
+                        </label>
+                        <input type="file" name="profile_picture" id="profile_picture" style="display:none;" accept="image/*">
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="full_name" class="form-control" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Index Number</label>
+                            <input type="text" id="index_number" class="form-control" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Department</label>
+                            <input type="text" id="department" class="form-control" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Level</label>
+                            <input type="text" id="level" class="form-control" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Class</label>
+                            <input type="text" id="class_name" class="form-control" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Stream</label>
+                            <input type="text" id="stream" class="form-control" disabled>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" name="email" id="email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="text" name="phone_number" id="phone_number" class="form-control" required>
+                    </div>
+                    
+                    <div style="margin-top: 30px; display: flex; gap: 10px;">
+                        <button type="submit" class="btn-login" style="flex: 1; padding: 12px; font-weight: bold;">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <style>
+        .sidebar-menu li a {
+            display: block;
+            padding: 15px 25px;
+            color: rgba(255,255,255,0.8);
+            transition: 0.3s;
+        }
+        .sidebar-menu li a:hover, .sidebar-menu li a.active {
+            background: rgba(255,255,255,0.1);
+            color: var(--white);
+            border-left: 4px solid var(--secondary-color);
+        }
+        @media screen and (max-width: 992px) {
+            .sidebar {
+                display: none;
+            }
+            .sidebar.active {
+                display: block;
+                position: fixed;
+                left: 0;
+                top: 0;
+                height: 100vh;
+                z-index: 1001;
+            }
+            .hamburger-dashboard {
+                display: block !important;
+            }
+            form div {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load Profile Data
+            fetch('../api/student/profile.php')
+                .then(res => {
+                    if (res.status === 401) {
+                        window.location.href = '../login.html';
+                        return;
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    if (!data || !data.ok) return;
+                    const s = data.student;
+                    document.getElementById('full_name').value = s.full_name;
+                    document.getElementById('index_number').value = s.index_number;
+                    document.getElementById('department').value = s.department;
+                    document.getElementById('level').value = s.level;
+                    document.getElementById('class_name').value = s.class_name || '';
+                    document.getElementById('stream').value = s.stream || '';
+                    document.getElementById('email').value = s.email;
+                    document.getElementById('phone_number').value = s.phone_number || '';
+                    if (s.profile_picture) {
+                        document.getElementById('profile-img').src = '../' + s.profile_picture;
+                    }
+                });
+
+            // Handle Form Submit
+            const form = document.getElementById('profile-form');
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const formData = new FormData(form);
+                
+                fetch('../api/student/profile.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    const alertContainer = document.getElementById('alert-container');
+                    if (data.ok) {
+                        alertContainer.innerHTML = '<div class="alert alert-success">Profile updated successfully!</div>';
+                        setTimeout(() => window.location.reload(), 1500);
+                    } else {
+                        alertContainer.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                    }
+                })
+                .catch(err => console.error('Error updating profile:', err));
+            });
+
+            // Preview profile picture before upload
+            document.getElementById('profile_picture').addEventListener('change', function(e) {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        document.getElementById('profile-img').src = e.target.result;
+                    }
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+
+            // Mobile menu toggle
+            const hamburger = document.querySelector('.hamburger-dashboard');
+            const sidebar = document.querySelector('.sidebar');
+            if (hamburger && sidebar) {
+                hamburger.addEventListener('click', () => {
+                    sidebar.classList.toggle('active');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - INFOTESS</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="../index.html" style="color: white; font-size: 1.2rem; font-weight: bold; display: block; margin-bottom: 10px;">
+                    <img src="../images/infotess.png" alt="Logo" height="30"> INFOTESS
+                </a>
+                <h3>My Portal</h3>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="profile.html"><i class="fas fa-user"></i> My Profile</a></li>
+                <li><a href="messages.html"><i class="fas fa-envelope"></i> Messages <span id="msg-badge-container"></span></a></li>
+                <li><a href="history.html"><i class="fas fa-history"></i> Payment History</a></li>
+                <li><a href="../logout.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <div style="display: flex; align-items: center; gap: 15px;" id="user-info-header">
+                    <div class="skeleton" style="width: 60px; height: 60px; border-radius: 50%;"></div>
+                    <div>
+                        <div class="skeleton" style="width: 150px; height: 20px; margin-bottom: 5px;"></div>
+                        <div class="skeleton" style="width: 100px; height: 15px;"></div>
+                    </div>
+                </div>
+                <div class="hamburger-dashboard" style="display: none; cursor: pointer; font-size: 1.5rem;">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stat-cards" id="stats-container">
+                <!-- Stats will be loaded here -->
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 30px;" class="dashboard-grid">
+                <!-- Notifications Section -->
+                <div class="section-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                        <h3>Recent Notifications</h3>
+                        <a href="messages.html" style="font-size: 0.9rem; color: var(--primary-color);">View all</a>
+                    </div>
+                    <div id="notifications-container">
+                        <!-- Notifications will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Recent Payments -->
+                <div class="section-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                        <h3>Recent Payments</h3>
+                        <a href="history.html" style="font-size: 0.9rem; color: var(--primary-color);">View history</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Receipt #</th>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="payments-tbody">
+                                <!-- Payments will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <style>
+        .section-card {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .skeleton {
+            background: #eee;
+            background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
+            background-size: 200% 100%;
+            animation: 1.5s shine linear infinite;
+        }
+        @keyframes shine {
+            to { background-position-x: -200%; }
+        }
+        @media screen and (max-width: 992px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr !important;
+            }
+            .sidebar {
+                display: none;
+            }
+            .sidebar.active {
+                display: block;
+                position: fixed;
+                left: 0;
+                top: 0;
+                height: 100vh;
+                z-index: 1001;
+            }
+            .hamburger-dashboard {
+                display: block !important;
+            }
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('../api/student/dashboard_data.php')
+                .then(res => {
+                    if (res.status === 401) {
+                        window.location.href = '../login.html';
+                        return;
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    if (!data || !data.ok) return;
+
+                    // User Info
+                    const userHeader = document.getElementById('user-info-header');
+                    const profilePic = data.student.profile_picture ? '../' + data.student.profile_picture : '../images/user-placeholder.png';
+                    userHeader.innerHTML = `
+                        <img src="${profilePic}" alt="Profile" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                        <div>
+                            <h2>Welcome, ${data.student.full_name}</h2>
+                            <div style="color: #666;">${data.student.index_number}</div>
+                        </div>
+                    `;
+
+                    // Unread badge
+                    if (data.unread_count > 0) {
+                        document.getElementById('msg-badge-container').innerHTML = `
+                            <span class="badge" style="background:#dc3545; color:white; padding:2px 6px; border-radius:50%; font-size:0.7rem;">${data.unread_count}</span>
+                        `;
+                    }
+
+                    // Stats
+                    const statsContainer = document.getElementById('stats-container');
+                    statsContainer.innerHTML = `
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-wallet"></i></div>
+                            <div class="stat-details">
+                                <h3>GHS ${parseFloat(data.stats.total_paid).toFixed(2)}</h3>
+                                <p>Total Contribution</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-file-invoice"></i></div>
+                            <div class="stat-details">
+                                <h3>${data.stats.receipt_count}</h3>
+                                <p>Receipts Generated</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-balance-scale"></i></div>
+                            <div class="stat-details">
+                                <h3>GHS ${parseFloat(data.stats.outstanding).toFixed(2)}</h3>
+                                <p>Outstanding (${data.stats.current_year})</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-check-circle" style="color: ${data.stats.status_color};"></i></div>
+                            <div class="stat-details">
+                                <h3 style="color: ${data.stats.status_color};">${data.stats.status_text}</h3>
+                                <p>Status (${data.stats.current_year})</p>
+                            </div>
+                        </div>
+                    `;
+
+                    // Notifications
+                    const notesContainer = document.getElementById('notifications-container');
+                    if (data.recent_messages.length === 0) {
+                        notesContainer.innerHTML = '<div style="padding: 15px; color: #666; background: #f9f9f9; border-radius: 5px;">No new notifications.</div>';
+                    } else {
+                        notesContainer.innerHTML = data.recent_messages.map(msg => {
+                            const date = new Date(msg.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                            return `
+                                <div class="card" style="padding: 15px; margin-bottom: 10px; border-left: 4px solid ${msg.is_broadcast == 1 ? '#003366' : 'var(--primary-color)'};">
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <strong>${msg.title}</strong>
+                                        <small style="color: #888;">${date}</small>
+                                    </div>
+                                    <p style="margin-top: 5px; font-size: 0.95rem; color: #444;">
+                                        ${msg.content.substring(0, 100)}${msg.content.length > 100 ? '...' : ''}
+                                    </p>
+                                    <a href="messages.html" style="font-size: 0.85rem; color: var(--secondary-color); font-weight: bold; margin-top: 5px; display: inline-block;">Read Full Message &rarr;</a>
+                                </div>
+                            `;
+                        }).join('');
+                    }
+
+                    // Payments
+                    const paymentsTbody = document.getElementById('payments-tbody');
+                    if (data.recent_payments.length === 0) {
+                        paymentsTbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px;">No payment history found.</td></tr>';
+                    } else {
+                        paymentsTbody.innerHTML = data.recent_payments.map(p => `
+                            <tr>
+                                <td>${p.receipt_number}</td>
+                                <td>${p.payment_date}</td>
+                                <td>GHS ${parseFloat(p.amount).toFixed(2)}</td>
+                                <td><span style="color:green; font-weight:bold;">Paid</span></td>
+                            </tr>
+                        `).join('');
+                    }
+                })
+                .catch(err => console.error('Error loading dashboard:', err));
+
+            // Mobile menu toggle for dashboard
+            const hamburger = document.querySelector('.hamburger-dashboard');
+            const sidebar = document.querySelector('.sidebar');
+            if (hamburger && sidebar) {
+                hamburger.addEventListener('click', () => {
+                    sidebar.classList.toggle('active');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - INFOTESS SDMS</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <div class="section">
+        <div class="form-container" style="text-align: center;">
+            <img src="images/infotess.png" alt="INFOTESS Logo" style="width: 100px; margin-bottom: 20px;">
+            <h2 class="section-title">Login to SDMS</h2>
+            
+            <div id="alert-message" class="alert" style="display: none;"></div>
+            
+            <form id="login-form" style="text-align: left;">
+                <div class="form-group">
+                    <label for="identifier">Email or Index Number</label>
+                    <input type="text" name="identifier" id="identifier" class="form-control" required placeholder="Enter Email (Admin) or Index No. (Student)">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" name="password" id="password" class="form-control" required placeholder="Enter Password">
+                </div>
+                
+                <button type="submit" class="btn-submit" id="submit-btn">Login</button>
+                
+                <div style="margin-top: 15px; text-align: center;">
+                    <a href="forgot-password.html" style="color: var(--primary-color);">Forgot Password?</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="js/components.js"></script>
+    <script>
+        const apiUrl = (path) => {
+            const clean = String(path || '').replace(/^\/+/, '');
+            if (clean.startsWith('api/')) return clean;
+            return 'api/' + clean;
+        };
+
+        const backendApiUrl = (path) => {
+            const clean = String(path || '').replace(/^\/+/, '');
+            if (clean.startsWith('api/')) return 'backend/' + clean;
+            return 'backend/api/' + clean;
+        };
+
+        // Check if already logged in
+        document.addEventListener('DOMContentLoaded', () => {
+            const getMe = (url) => fetch(url).then(res => {
+                if (res.status === 404) {
+                    throw new Error('not_found');
+                }
+                return res.json();
+            });
+
+            getMe(apiUrl('auth/me.php'))
+                .catch((e) => {
+                    if (e && e.message === 'not_found') {
+                        return getMe(backendApiUrl('auth/me.php'));
+                    }
+                    throw e;
+                })
+                .then(data => {
+                    if (data.ok && data.actor) {
+                        const role = data.actor.role || 'student';
+                        if (role === 'admin' || role === 'super_admin') {
+                            window.location.href = 'admin/dashboard.html'; 
+                        } else {
+                            window.location.href = 'student/dashboard.html';
+                        }
+                    }
+                })
+                .catch(() => { /* Not logged in, continue */ });
+        });
+
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            const alertBox = document.getElementById('alert-message');
+            btn.disabled = true;
+            btn.textContent = 'Logging in...';
+
+            const payload = {
+                identifier: document.getElementById('identifier').value,
+                password: document.getElementById('password').value
+            };
+
+            const doLogin = (url) => fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).then(res => {
+                if (res.status === 404) {
+                    throw new Error('not_found');
+                }
+                return res;
+            });
+
+            doLogin(apiUrl('v2/login.php'))
+            .catch((e) => {
+                if (e && e.message === 'not_found') {
+                    return doLogin(backendApiUrl('v2/login.php'));
+                }
+                throw e;
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // Fix redirect path depending on where it's pointing
+                    let redirectUrl = data.redirect.replace('.php', '.html');
+                    // Remove leading slash if it exists
+                    if (redirectUrl.startsWith('/')) {
+                        redirectUrl = redirectUrl.substring(1);
+                    }
+                    window.location.href = redirectUrl;
+                } else {
+                    alertBox.style.display = 'block';
+                    alertBox.className = 'alert alert-danger';
+                    alertBox.textContent = data.error || 'Invalid credentials.';
+                    btn.disabled = false;
+                    btn.textContent = 'Login';
+                }
+            })
+            .catch(err => {
+                alertBox.style.display = 'block';
+                alertBox.className = 'alert alert-danger';
+                alertBox.textContent = 'Network error. Please try again.';
+                btn.disabled = false;
+                btn.textContent = 'Login';
+            });
+        });
+    </script>
+</body>
+</html>

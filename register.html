@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration - INFOTESS</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <div class="container" style="padding: 40px 0; max-width: 800px; margin: 0 auto;">
+        <div class="card">
+            <div class="card-header" style="text-align: center; border-bottom: 1px solid #eee; padding-bottom: 20px; margin-bottom: 20px;">
+                <h2>Student Registration</h2>
+                <p>Join INFOTESS to access exclusive benefits</p>
+            </div>
+
+            <div id="alert-message" class="alert" style="display: none;"></div>
+
+            <form id="register-form" style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="full_name" name="full_name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Index Number</label>
+                    <input type="text" id="index_number" name="index_number" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="email" name="email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="text" id="phone_number" name="phone_number" class="form-control" required>
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Programme / Department</label>
+                    <select id="department" name="department" class="form-control" required>
+                        <option value="">-- Select Programme --</option>
+                        <optgroup label="Bachelor's Degree Programmes">
+                            <option value="B.Sc. Information Technology">B.Sc. Information Technology</option>
+                            <option value="B.Sc. Cyber Security and Digital Forensics">B.Sc. Cyber Security and Digital Forensics</option>
+                            <option value="B.Ed. Computing with Artificial Intelligence (AI)">B.Ed. Computing with Artificial Intelligence (AI)</option>
+                            <option value="B.Ed. Computing with Internet of Things (IOT)">B.Ed. Computing with Internet of Things (IOT)</option>
+                            <option value="B.Ed. Information Technology">B.Ed. Information Technology</option>
+                        </optgroup>
+                        <optgroup label="Diploma Programmes">
+                            <option value="Diploma in Cyber Security and Digital Forensics">Diploma in Cyber Security and Digital Forensics</option>
+                            <option value="Diploma in Information Technology">Diploma in Information Technology</option>
+                        </optgroup>
+                        <optgroup label="Postgraduate Programmes">
+                            <option value="M. Phil. Information Technology">M. Phil. Information Technology</option>
+                            <option value="M. Sc. Information Technology Education">M. Sc. Information Technology Education</option>
+                            <option value="M. Phil Information Technology (Top-up)">M. Phil Information Technology (Top-up)</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Level</label>
+                    <select id="level" name="level" class="form-control" required>
+                        <option value="100">100</option>
+                        <option value="200">200</option>
+                        <option value="300">300</option>
+                        <option value="400">400</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Class</label>
+                    <select id="class" name="class" class="form-control" required>
+                        <option value="">-- Select Class --</option>
+                        <optgroup label="IT">
+                            <option value="IT A">IT A</option>
+                            <option value="IT B">IT B</option>
+                            <option value="IT C">IT C</option>
+                            <option value="IT D">IT D</option>
+                            <option value="IT E">IT E</option>
+                            <option value="IT F">IT F</option>
+                            <option value="IT G">IT G</option>
+                            <option value="IT H">IT H</option>
+                        </optgroup>
+                        <optgroup label="ITE">
+                            <option value="ITE A">ITE A</option>
+                            <option value="ITE B">ITE B</option>
+                            <option value="ITE C">ITE C</option>
+                            <option value="ITE D">ITE D</option>
+                            <option value="ITE E">ITE E</option>
+                            <option value="ITE F">ITE F</option>
+                            <option value="ITE G">ITE G</option>
+                            <option value="ITE H">ITE H</option>
+                            <option value="ITE I">ITE I</option>
+                            <option value="ITE J">ITE J</option>
+                            <option value="ITE K">ITE K</option>
+                        </optgroup>
+                        <optgroup label="CB">
+                            <option value="CB A">CB A</option>
+                            <option value="CB B">CB B</option>
+                            <option value="CB C">CB C</option>
+                            <option value="CB D">CB D</option>
+                            <option value="CB E">CB E</option>
+                            <option value="CB F">CB F</option>
+                            <option value="CB G">CB G</option>
+                            <option value="CB H">CB H</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Stream</label>
+                    <select id="stream" name="stream" class="form-control" required>
+                        <option value="">-- Select Stream --</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Sandwich">Sandwich</option>
+                        <option value="Evening">Evening</option>
+                    </select>
+                </div>
+                
+                <div style="grid-column: span 2; text-align: center; margin-top: 20px;">
+                    <button type="submit" id="submit-btn" class="btn-primary" style="width: 100%; max-width: 300px; padding: 15px;">Register Now</button>
+                </div>
+                
+                <div style="grid-column: span 2; text-align: center; margin-top: 10px;">
+                    <p>Already have an account? <a href="login.html">Login here</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="js/components.js"></script>
+    <script>
+        document.getElementById('register-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            const alertBox = document.getElementById('alert-message');
+            btn.disabled = true;
+            btn.textContent = 'Registering...';
+
+            const payload = {
+                full_name: document.getElementById('full_name').value,
+                index_number: document.getElementById('index_number').value,
+                email: document.getElementById('email').value,
+                phone_number: document.getElementById('phone_number').value,
+                department: document.getElementById('department').value,
+                level: document.getElementById('level').value,
+                class: document.getElementById('class').value,
+                stream: document.getElementById('stream').value
+            };
+
+            fetch('api/public/register.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                alertBox.style.display = 'block';
+                if (data.ok) {
+                    alertBox.className = 'alert alert-success';
+                    alertBox.textContent = data.message;
+                    document.getElementById('register-form').reset();
+                    setTimeout(() => {
+                        window.location.href = '/login.html';
+                    }, 3000);
+                } else {
+                    alertBox.className = 'alert alert-danger';
+                    alertBox.textContent = data.error || 'An error occurred';
+                    btn.disabled = false;
+                    btn.textContent = 'Register Now';
+                }
+            })
+            .catch(err => {
+                alertBox.style.display = 'block';
+                alertBox.className = 'alert alert-danger';
+                alertBox.textContent = 'Network error. Please try again.';
+                btn.disabled = false;
+                btn.textContent = 'Register Now';
+            });
+        });
+    </script>
+</body>
+</html>

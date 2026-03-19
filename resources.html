@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Resources - INFOTESS</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <div class="hero" style="height: 50vh;">
+        <h1>Student Resources</h1>
+        <p>Access learning materials, lecture notes, and software tools.</p>
+    </div>
+
+    <div class="section">
+        <div class="container" id="resources-container">
+            <p style="text-align: center; width: 100%;">Loading resources...</p>
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="js/components.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('api/public/resources.php')
+                .then(res => res.json())
+                .then(data => {
+                    const container = document.getElementById('resources-container');
+                    if (data.ok && data.resources && data.resources.length > 0) {
+                        let html = '<div class="card-grid">';
+                        data.resources.forEach(res => {
+                            const resType = res.resource_type ? res.resource_type.toLowerCase() : '';
+                            let iconClass = 'fa-file-alt';
+                            if (resType.includes('pdf')) iconClass = 'fa-file-pdf';
+                            else if (resType.includes('doc')) iconClass = 'fa-file-word';
+
+                            html += `
+                                <div class="card">
+                                    <div class="card-content" style="display: flex; align-items: center; gap: 20px;">
+                                        <div style="font-size: 2.5rem; color: var(--primary-color);">
+                                            <i class="fas ${iconClass}"></i>
+                                        </div>
+                                        <div style="flex: 1;">
+                                            <h3 class="card-title" style="margin-bottom: 5px;">${res.title.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</h3>
+                                            <p style="font-size: 0.9rem; margin-bottom: 10px;">${(res.description || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+                                            <a href="${res.file_url ? res.file_url.replace(/"/g, '&quot;') : '#'}" class="btn-login" style="padding: 5px 15px; font-size: 0.8rem; display: inline-block;" download>
+                                                <i class="fas fa-download"></i> Download ${(res.resource_type || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        html += '</div>';
+                        container.innerHTML = html;
+                    } else {
+                        container.innerHTML = `
+                            <div class="card" style="text-align: center; padding: 40px;">
+                                <i class="fas fa-folder-open" style="font-size: 3rem; color: #ccc; margin-bottom: 20px;"></i>
+                                <p>No resources have been uploaded yet. Check back soon!</p>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('resources-container').innerHTML = '<p style="text-align: center; width: 100%;">Error loading resources.</p>';
+                });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+RewriteEngine On
+
+# Don’t rewrite existing files or directories
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# API routes
+RewriteRule ^api/(.*)$ backend/api/$1 [L]
+
+# Admin routes (support both /admin/foo and /admin/foo.php)
+RewriteRule ^admin/([A-Za-z0-9_-]+)$ backend/admin/$1.php [L]
+RewriteRule ^admin/(.*\.php)$ backend/admin/$1 [L]
+
+# Student routes (support both /student/foo and /student/foo.php)
+RewriteRule ^student/([A-Za-z0-9_-]+)$ backend/student/$1.php [L]
+RewriteRule ^student/(.*\.php)$ backend/student/$1 [L]

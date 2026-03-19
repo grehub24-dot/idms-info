@@ -1,0 +1,8 @@
+{
+    "name": "infotess/sdms",
+    "description": "INFOTESS Student Data Management System",
+    "type": "project",
+    "require": {
+        "php": "^7.4 || ^8.0"
+    }
+}

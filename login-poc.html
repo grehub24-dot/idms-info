@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Pure Frontend PoC</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .error-message { color: red; margin-bottom: 15px; display: none; }
+        .success-message { color: green; margin-bottom: 15px; display: none; }
+    </style>
+</head>
+<body>
+    <!-- Simulating the header for the PoC -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">
+                <img src="images/infotess.png" alt="INFOTESS Logo" height="40"> INFOTESS (PoC)
+            </a>
+        </div>
+    </nav>
+
+    <div class="section">
+        <div class="form-container" style="text-align: center;">
+            <img src="images/infotess.png" alt="INFOTESS Logo" style="width: 100px; margin-bottom: 20px;">
+            <h2 class="section-title">Login (Pure HTML/JS)</h2>
+            
+            <div id="error-alert" class="alert alert-danger error-message"></div>
+            <div id="success-alert" class="alert alert-success success-message">Login successful! Redirecting...</div>
+            
+            <form id="loginForm" style="text-align: left;">
+                <div class="form-group">
+                    <label for="identifier">Email or Index Number</label>
+                    <input type="text" id="identifier" class="form-control" required placeholder="Enter Email (Admin) or Index No. (Student)">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" class="form-control" required placeholder="Enter Password">
+                </div>
+                
+                <button type="submit" class="btn-submit" id="submitBtn">Login via API</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const identifier = document.getElementById('identifier').value;
+            const password = document.getElementById('password').value;
+            const errorAlert = document.getElementById('error-alert');
+            const successAlert = document.getElementById('success-alert');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            errorAlert.style.display = 'none';
+            successAlert.style.display = 'none';
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Authenticating...';
+            
+            try {
+                const response = await fetch('/api/v2/login.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ identifier, password })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    successAlert.style.display = 'block';
+                    // Redirect based on the API response
+                    setTimeout(() => {
+                        window.location.href = result.redirect;
+                    }, 1000);
+                } else {
+                    errorAlert.textContent = result.error;
+                    errorAlert.style.display = 'block';
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Login via API';
+                }
+            } catch (error) {
+                errorAlert.textContent = 'A network error occurred. Please try again.';
+                errorAlert.style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Login via API';
+            }
+        });
+    </script>
+</body>
+</html>

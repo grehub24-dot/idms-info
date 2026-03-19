@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment History - INFOTESS</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="../index.html" style="color: white; font-size: 1.2rem; font-weight: bold; display: block; margin-bottom: 10px;">
+                    <img src="../images/infotess.png" alt="Logo" height="30"> INFOTESS
+                </a>
+                <h3>My Portal</h3>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="profile.html"><i class="fas fa-user"></i> My Profile</a></li>
+                <li><a href="messages.html"><i class="fas fa-envelope"></i> Messages <span id="msg-badge-container"></span></a></li>
+                <li><a href="history.html" class="active"><i class="fas fa-history"></i> Payment History</a></li>
+                <li><a href="../logout.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <h2>Payment History</h2>
+                <div class="hamburger-dashboard" style="display: none; cursor: pointer; font-size: 1.5rem;">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>My Transactions</h3>
+                <div class="table-responsive">
+                    <table class="table" style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th>Receipt #</th>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Academic Year / Sem</th>
+                                <th>Method</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="payments-tbody">
+                            <tr><td colspan="6" style="text-align:center;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <style>
+        .btn-sm { padding: 5px 10px; font-size: 0.85rem; border-radius: 4px; color: white; background: var(--primary-color); }
+        @media screen and (max-width: 992px) {
+            .sidebar {
+                display: none;
+            }
+            .sidebar.active {
+                display: block;
+                position: fixed;
+                left: 0;
+                top: 0;
+                height: 100vh;
+                z-index: 1001;
+            }
+            .hamburger-dashboard {
+                display: block !important;
+            }
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load Payment History
+            fetch('../api/student/payments_list.php')
+                .then(res => {
+                    if (res.status === 401) {
+                        window.location.href = '../login.html';
+                        return;
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    const tbody = document.getElementById('payments-tbody');
+                    if (!data || !data.ok || data.payments.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No payment history found.</td></tr>';
+                        return;
+                    }
+
+                    tbody.innerHTML = data.payments.map(p => `
+                        <tr>
+                            <td>${p.receipt_number}</td>
+                            <td>${p.payment_date}</td>
+                            <td>GHS ${parseFloat(p.amount).toFixed(2)}</td>
+                            <td>${p.academic_year} - Sem ${p.semester}</td>
+                            <td>${p.payment_method}</td>
+                            <td>
+                                <a href="../receipts/receipt_${p.receipt_number}.html" target="_blank" class="btn-sm">
+                                    <i class="fas fa-download"></i> View
+                                </a>
+                            </td>
+                        </tr>
+                    `).join('');
+                })
+                .catch(err => {
+                    console.error('Error loading history:', err);
+                    document.getElementById('payments-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center; color: red;">Error loading history.</td></tr>';
+                });
+
+            // Mobile menu toggle
+            const hamburger = document.querySelector('.hamburger-dashboard');
+            const sidebar = document.querySelector('.sidebar');
+            if (hamburger && sidebar) {
+                hamburger.addEventListener('click', () => {
+                    sidebar.classList.toggle('active');
+                });
+            }
+
+            // Load unread badge
+            fetch('../api/student/dashboard_data.php')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.ok && data.unread_count > 0) {
+                        document.getElementById('msg-badge-container').innerHTML = `
+                            <span class="badge" style="background:#dc3545; color:white; padding:2px 6px; border-radius:50%; font-size:0.7rem;">${data.unread_count}</span>
+                        `;
+                    }
+                });
+        });
+    </script>
+</body>
+</html>

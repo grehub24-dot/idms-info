@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upcoming Events - INFOTESS</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <div class="hero" style="height: 40vh; background: linear-gradient(rgba(0,51,102,0.8), rgba(0,51,102,0.8)), url('images/aamusted.jpg') center/cover;">
+        <h1>Upcoming Events</h1>
+        <p>Join us for our upcoming academic and social gatherings</p>
+    </div>
+
+    <div class="section">
+        <div class="container">
+            <h2 class="section-title">Calendar of Events</h2>
+            
+            <div class="card-grid" id="events-container">
+                <p>Loading events...</p>
+            </div>
+            
+            <div style="text-align: center; margin-top: 40px;">
+                <a href="https://aamusted.edu.gh/events/" target="_blank" class="btn-primary">View Full Calendar on Official Site</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="js/components.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('api/public/events.php')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.ok && data.events && data.events.length > 0) {
+                        const container = document.getElementById('events-container');
+                        let html = '';
+                        data.events.forEach(event => {
+                            const dateObj = new Date(event.event_date || event.date);
+                            const day = String(dateObj.getDate()).padStart(2, '0');
+                            const month = dateObj.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+                            const fullDate = dateObj.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric' });
+
+                            html += `
+                                <div class="card">
+                                    <div class="card-content">
+                                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                            <div style="background: var(--secondary-color); color: var(--primary-color); padding: 10px; border-radius: 5px; text-align: center; margin-right: 15px; min-width: 60px;">
+                                                <div style="font-size: 1.5rem; font-weight: bold;">${day}</div>
+                                                <div style="font-size: 0.8rem; text-transform: uppercase;">${month}</div>
+                                            </div>
+                                            <div>
+                                                <h3 style="margin: 0; font-size: 1.1rem; color: var(--primary-color);">${event.title.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</h3>
+                                                <span style="font-size: 0.9rem; color: #666;"><i class="fas fa-clock"></i> ${fullDate}</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <p style="margin-bottom: 10px;"><strong><i class="fas fa-map-marker-alt" style="color: var(--secondary-color);"></i> Location:</strong> ${(event.location || 'TBA').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+                                        <p style="color: #555; line-height: 1.6; margin-bottom: 15px;">${(event.description || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+                                        ${event.link ? `<a href="${event.link.replace(/"/g, '&quot;')}" target="_blank" style="display: inline-block; color: var(--secondary-color); font-weight: bold;">View Event Details &rarr;</a>` : ''}
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        container.innerHTML = html;
+                    } else {
+                        document.getElementById('events-container').innerHTML = '<p>No upcoming events at the moment.</p>';
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('events-container').innerHTML = '<p>Error loading events.</p>';
+                });
+        });
+    </script>
+</body>
+</html>
