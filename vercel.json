@@ -17,6 +17,38 @@
       "dest": "/admin/edit-student.html"
     },
     {
+      "src": "/api/public/executives",
+      "dest": "api/v3/public/content.js"
+    },
+    {
+      "src": "/api/public/activities",
+      "dest": "api/v3/public/content.js"
+    },
+    {
+      "src": "/api/public/events",
+      "dest": "api/v3/public/content.js"
+    },
+    {
+      "src": "/api/public/department",
+      "dest": "api/v3/public/content.js"
+    },
+    {
+      "src": "/api/public/news",
+      "dest": "api/v3/public/content.js"
+    },
+    {
+      "src": "/api/public/gallery",
+      "dest": "api/v3/public/content.js"
+    },
+    {
+      "src": "/api/public/projects",
+      "dest": "api/v3/public/content.js"
+    },
+    {
+      "src": "/api/public/alumni",
+      "dest": "api/v3/public/alumni.js"
+    },
+    {
       "src": "/admin/(.*)",
       "dest": "/admin/dashboard.html"
     },

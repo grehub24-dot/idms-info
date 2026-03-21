@@ -24,8 +24,61 @@ module.exports = async function handler(req, res) {
         result.events = await db.query('SELECT * FROM events ORDER BY event_date DESC LIMIT 20');
         break;
       case 'executives':
-        result.executives = await db.query('SELECT * FROM executives ORDER BY id ASC');
-        break;
+        try {
+          const rows = await db.query('SELECT * FROM executives ORDER BY id ASC');
+          if (rows && rows.length > 0) {
+            result.executives = rows;
+          } else {
+            const info = await db.query('SELECT content FROM department_info WHERE key_name = ?', ['executives_json']);
+            if (info.length > 0 && info[0].content) {
+              const parsed = JSON.parse(info[0].content);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                result.executives = parsed;
+              }
+            }
+            if (!result.executives || result.executives.length === 0) {
+              result.executives = [
+                { full_name: 'Dela Stephen Dunyo', position: 'President', bio: 'Cybersecurity — 0553955493' },
+                { full_name: 'Tetteh Reuben', position: 'Vice President', bio: 'BSc ITE — 0556529793' },
+                { full_name: 'Poleson Godwin', position: 'Gen. Secretary', bio: '0547151838' },
+                { full_name: 'Kitsi Roland', position: 'Fin. Secretary', bio: '0549090433' },
+                { full_name: 'Naazir Godfred', position: 'Organizer', bio: '0243478600' },
+                { full_name: 'Abdul Razzaq Adama', position: 'Treasurer', bio: '0597666651' },
+                { full_name: 'Dosuntey Rose', position: 'Wocom', bio: '0592053083' }
+              ];
+            }
+          }
+        } catch (e) {
+          try {
+            const info = await db.query('SELECT content FROM department_info WHERE key_name = ?', ['executives_json']);
+            if (info.length > 0 && info[0].content) {
+              const parsed = JSON.parse(info[0].content);
+              result.executives = Array.isArray(parsed) ? parsed : [];
+            }
+            if (!result.executives || result.executives.length === 0) {
+              result.executives = [
+                { full_name: 'Dela Stephen Dunyo', position: 'President', bio: 'Cybersecurity — 0553955493' },
+                { full_name: 'Tetteh Reuben', position: 'Vice President', bio: 'BSc ITE — 0556529793' },
+                { full_name: 'Poleson Godwin', position: 'Gen. Secretary', bio: '0547151838' },
+                { full_name: 'Kitsi Roland', position: 'Fin. Secretary', bio: '0549090433' },
+                { full_name: 'Naazir Godfred', position: 'Organizer', bio: '0243478600' },
+                { full_name: 'Abdul Razzaq Adama', position: 'Treasurer', bio: '0597666651' },
+                { full_name: 'Dosuntey Rose', position: 'Wocom', bio: '0592053083' }
+              ];
+              }
+          } catch (_) {
+            result.executives = [
+              { full_name: 'Dela Stephen Dunyo', position: 'President', bio: 'Cybersecurity — 0553955493' },
+              { full_name: 'Tetteh Reuben', position: 'Vice President', bio: 'BSc ITE — 0556529793' },
+              { full_name: 'Poleson Godwin', position: 'Gen. Secretary', bio: '0547151838' },
+              { full_name: 'Kitsi Roland', position: 'Fin. Secretary', bio: '0549090433' },
+              { full_name: 'Naazir Godfred', position: 'Organizer', bio: '0243478600' },
+              { full_name: 'Abdul Razzaq Adama', position: 'Treasurer', bio: '0597666651' },
+              { full_name: 'Dosuntey Rose', position: 'Wocom', bio: '0592053083' }
+            ];
+          }
+          } else {
+            result.executives = [];
       case 'activities':
         result.activities = await db.query('SELECT * FROM activities ORDER BY activity_date DESC LIMIT 20');
         break;
