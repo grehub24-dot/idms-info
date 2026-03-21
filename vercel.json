@@ -1,19 +1,300 @@
 {
-  "functions": {
-    "api/**/*.php": { "runtime": "vercel-php@0.7.0" }
-  },
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/router.php?path=$1"
+      "src": "/favicon.ico",
+      "dest": "/images/infotess-logo.svg"
     },
     {
-      "src": "/admin/(.*)$",
-      "dest": "/api/admin.php?path=$1"
+      "src": "/admin/students",
+      "dest": "/admin/students.html"
     },
     {
-      "src": "/student/(.*)$",
-      "dest": "/api/student.php?path=$1"
+      "src": "/admin/payments",
+      "dest": "/admin/payments.html"
+    },
+    {
+      "src": "/admin/edit-student",
+      "dest": "/admin/edit-student.html"
+    },
+    {
+      "src": "/admin/(.*)",
+      "dest": "/admin/dashboard.html"
+    },
+    {
+      "src": "/api/v2/login",
+      "dest": "api/v3/auth/login.js"
+    },
+    {
+      "src": "/api/v2/auth/login",
+      "dest": "api/v3/auth/login.js"
+    },
+    {
+      "src": "/api/v2/auth/me",
+      "dest": "api/v3/auth/me.js"
+    },
+    {
+      "src": "/api/v2/auth/reset-password",
+      "dest": "api/v3/auth/reset-password.js"
+    },
+    {
+      "src": "/api/v3/auth/login",
+      "dest": "api/v3/auth/login.js"
+    },
+    {
+      "src": "/api/v3/auth/reset-password",
+      "dest": "api/v3/auth/reset-password.js"
+    },
+    {
+      "src": "/api/v3/auth/me",
+      "dest": "api/v3/auth/me.js"
+    },
+    {
+      "src": "/api/v3/sms/health",
+      "dest": "api/v3/sms/health.js"
+    },
+    {
+      "src": "/api/v3/sms/send",
+      "dest": "api/v3/sms/send.js"
+    },
+    {
+      "src": "/api/auth/me",
+      "dest": "api/v3/auth/me.js"
+    },
+    {
+      "src": "/api/auth/me.php",
+      "dest": "api/v3/auth/me.js"
+    },
+    {
+      "src": "/api/auth/login",
+      "dest": "api/v3/auth/login.js"
+    },
+    {
+      "src": "/api/auth/login.php",
+      "dest": "api/v3/auth/login.js"
+    },
+    {
+      "src": "/api/auth/logout",
+      "dest": "api/v3/auth/logout.js"
+    },
+    {
+      "src": "/api/auth/logout.php",
+      "dest": "api/v3/auth/logout.js"
+    },
+    {
+      "src": "/api/auth/password_reset.php",
+      "dest": "api/v3/auth/reset-password.js"
+    },
+    {
+      "src": "/api/auth/password_reset",
+      "dest": "api/v3/auth/reset-password.js"
+    },
+    {
+      "src": "/api/public/news",
+      "dest": "api/v3/public/content.js"
+    },
+    {
+      "src": "/api/public/events",
+      "dest": "api/v3/public/content.js"
+    },
+    {
+      "src": "/api/public/executives",
+      "dest": "api/v3/public/content.js"
+    },
+    {
+      "src": "/api/public/activities",
+      "dest": "api/v3/public/content.js"
+    },
+    {
+      "src": "/api/public/gallery",
+      "dest": "api/v3/public/content.js"
+    },
+    {
+      "src": "/api/public/projects",
+      "dest": "api/v3/public/content.js"
+    },
+    {
+      "src": "/api/public/department",
+      "dest": "api/v3/public/content.js"
+    },
+    {
+      "src": "/api/public/settings",
+      "dest": "api/v3/public/content.js"
+    },
+    {
+      "src": "/api/public/news.php",
+      "dest": "api/v3/public/content.js"
+    },
+    {
+      "src": "/api/public/events.php",
+      "dest": "api/v3/public/content.js"
+    },
+    {
+      "src": "/api/public/executives.php",
+      "dest": "api/v3/public/content.js"
+    },
+    {
+      "src": "/api/public/activities.php",
+      "dest": "api/v3/public/content.js"
+    },
+    {
+      "src": "/api/public/gallery.php",
+      "dest": "api/v3/public/content.js"
+    },
+    {
+      "src": "/api/public/projects.php",
+      "dest": "api/v3/public/content.js"
+    },
+    {
+      "src": "/api/public/department.php",
+      "dest": "api/v3/public/content.js"
+    },
+    {
+      "src": "/api/public/settings.php",
+      "dest": "api/v3/public/content.js"
+    },
+    {
+      "src": "/api/v2/auth/register",
+      "dest": "api/v3/public/register.js"
+    },
+    {
+      "src": "/api/public/register",
+      "dest": "api/v3/public/register.js"
+    },
+    {
+      "src": "/api/public/register.php",
+      "dest": "api/v3/public/register.js"
+    },
+    {
+      "src": "/api/student/dashboard_data",
+      "dest": "api/v3/student/dashboard.js"
+    },
+    {
+      "src": "/api/student/dashboard_data.php",
+      "dest": "api/v3/student/dashboard.js"
+    },
+    {
+      "src": "/api/student/profile",
+      "dest": "api/v3/users/profile.js"
+    },
+    {
+      "src": "/api/student/profile.php",
+      "dest": "api/v3/users/profile.js"
+    },
+    {
+      "src": "/api/student/payments_list",
+      "dest": "api/v3/student/payments.js"
+    },
+    {
+      "src": "/api/student/payments_list.php",
+      "dest": "api/v3/student/payments.js"
+    },
+    {
+      "src": "/api/student/messages",
+      "dest": "api/v3/student/messages.js"
+    },
+    {
+      "src": "/api/student/messages.php",
+      "dest": "api/v3/student/messages.js"
+    },
+    {
+      "src": "/api/student/mark_message_read",
+      "dest": "api/v3/student/messages.js"
+    },
+    {
+      "src": "/api/student/mark_message_read.php",
+      "dest": "api/v3/student/messages.js"
+    },
+    {
+      "src": "/api/admin/get_student_by_index.php",
+      "dest": "api/v3/admin/students.js"
+    },
+    {
+      "src": "/api/admin/students_bulk_upload.php",
+      "dest": "api/v3/admin/students.js"
+    },
+    {
+      "src": "/api/admin/messaging.php",
+      "dest": "api/v3/admin/messages.js"
+    },
+    {
+      "src": "/api/admin/inbox.php",
+      "dest": "api/v3/admin/messages.js"
+    },
+    {
+      "src": "/api/admin/settings.php",
+      "dest": "api/v3/admin/settings.js"
+    },
+    {
+      "src": "/api/admin/users.php",
+      "dest": "api/v3/admin/users.js"
+    },
+    {
+      "src": "/api/admin/reports.php",
+      "dest": "api/v3/admin/reports.js"
+    },
+    {
+      "src": "/api/admin/dashboard_data",
+      "dest": "api/v3/admin/dashboard.js"
+    },
+    {
+      "src": "/api/admin/dashboard_data.php",
+      "dest": "api/v3/admin/dashboard.js"
+    },
+    {
+      "src": "/api/admin/students_list.php",
+      "dest": "api/v3/admin/students.js"
+    },
+    {
+      "src": "/api/admin/students_create.php",
+      "dest": "api/v3/admin/students.js"
+    },
+    {
+      "src": "/api/admin/students_update.php",
+      "dest": "api/v3/admin/students.js"
+    },
+    {
+      "src": "/api/admin/students_delete.php",
+      "dest": "api/v3/admin/students.js"
+    },
+    {
+      "src": "/api/admin/payments_list.php",
+      "dest": "api/v3/admin/payments.js"
+    },
+    {
+      "src": "/api/admin/payments_create.php",
+      "dest": "api/v3/admin/payments.js"
+    },
+    {
+      "src": "/api/admin/payments_delete.php",
+      "dest": "api/v3/admin/payments.js"
+    },
+    {
+      "src": "/api/admin/payments_update.php",
+      "dest": "api/v3/admin/payments.js"
+    },
+    {
+      "src": "/api/admin/audit.php",
+      "dest": "api/v3/admin/dashboard.js"
+    },
+    {
+      "src": "/api/admin/audit_list.php",
+      "dest": "api/v3/admin/dashboard.js"
+    },
+    {
+      "src": "/api/admin/(.*)",
+      "dest": "api/v3/admin/dashboard.js"
     }
-  ]
+  ],
+  "env": {
+    "DB_HOST": "@db_host",
+    "DB_NAME": "@db_name",
+    "DB_USER": "@db_user",
+    "DB_PASS": "@db_pass",
+    "JWT_SECRET": "@jwt_secret",
+    "APP_ENV": "production",
+    "WIGAL_API_KEY": "@wigal_api_key",
+    "WIGAL_USERNAME": "@wigal_username",
+    "WIGAL_SENDER_ID": "@wigal_sender_id",
+    "WIGAL_SMS_ENDPOINT": "https://frogapi.wigal.com.gh/api/v3/sms/send"
+  }
 }

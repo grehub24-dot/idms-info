@@ -89,46 +89,66 @@ function initializeHeader(basePath = './') {
         });
     }
 
-    const fetchWithFallback = (primaryUrl) => {
+    const fetchWithFallback = (primaryUrl, options = {}) => {
         const u = String(primaryUrl || '');
         const fallbackUrl = u.replace(/(^|\/)(api\/)\b/, '$1backend/$2');
-        return fetch(primaryUrl)
+        
+        // Add Authorization header if token exists
+        const token = localStorage.getItem('infotess_token');
+        if (token) {
+            options.headers = {
+                ...options.headers,
+                'Authorization': `Bearer ${token}`
+            };
+        }
+
+        return fetch(primaryUrl, options)
             .then(res => {
                 if (res && res.status === 404) {
-                    return fetch(fallbackUrl);
+                    return fetch(fallbackUrl, options);
                 }
                 return res;
             })
-            .catch(() => fetch(fallbackUrl));
+            .catch(() => fetch(fallbackUrl, options));
     };
 
-    // Check Auth Status
-    fetchWithFallback(basePath + 'api/auth/me.php')
-        .then(res => {
-            if (!res.ok) throw new Error('Not logged in');
-            return res.json();
-        })
-        .then(data => {
-            if (data.ok && data.actor) {
-                const authLinksPlaceholder = document.getElementById('auth-links-placeholder');
-                if (authLinksPlaceholder) {
-                    const role = data.actor.role || 'student';
-                    let dashboardLink = basePath + 'student/dashboard.html';
-                    
-                    if (role === 'admin' || role === 'super_admin') {
-                        dashboardLink = basePath + 'admin/dashboard.html';
+    // Check Auth Status - ONLY if token exists to avoid 401 console logs
+    const savedToken = localStorage.getItem('infotess_token');
+    if (savedToken) {
+        fetchWithFallback('/api/auth/me')
+            .then(res => {
+                if (!res.ok) {
+                    // Token might be invalid or expired, clear it
+                    if (res.status === 401) {
+                        localStorage.removeItem('infotess_token');
+                        localStorage.removeItem('infotess_user');
                     }
-
-                    authLinksPlaceholder.innerHTML = `
-                        <a href="${dashboardLink}" class="btn-login">Dashboard</a>
-                        <a href="${basePath}logout.html" style="margin-left: 10px;">Logout</a>
-                    `;
+                    return null;
                 }
-            }
-        })
-        .catch(err => {
-            // Not logged in, leave the default login link
-        });
+                return res.json();
+            })
+            .then(data => {
+                if (data && data.ok && data.actor) {
+                    const authLinksPlaceholder = document.getElementById('auth-links-placeholder');
+                    if (authLinksPlaceholder) {
+                        const role = data.actor.role || 'student';
+                        let dashboardLink = basePath + 'student/dashboard.html';
+                        
+                        if (role === 'admin' || role === 'super_admin') {
+                            dashboardLink = basePath + 'admin/dashboard.html';
+                        }
+
+                        authLinksPlaceholder.innerHTML = `
+                            <a href="${dashboardLink}" class="btn-login">Dashboard</a>
+                            <a href="${basePath}logout.html" style="margin-left: 10px;">Logout</a>
+                        `;
+                    }
+                }
+            })
+            .catch(err => {
+                // Not logged in, leave the default login link
+            });
+    }
 
     // Mobile menu toggle
     const hamburger = document.querySelector('.hamburger');

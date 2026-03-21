@@ -28,7 +28,7 @@
     <script src="js/components.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            fetch('api/public/gallery.php')
+            fetch('api/public/gallery')
                 .then(res => res.json())
                 .then(data => {
                     const container = document.getElementById('gallery-container');

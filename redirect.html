@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Redirect to Correct URL</title>
+    <script>
+        // Check if we're accessing via file:// protocol
+        if (window.location.protocol === 'file:') {
+            // Get the current file path
+            var currentPath = window.location.pathname;
+            // Extract the folder name from the path
+            var folderName = currentPath.split('/').pop().replace('.html', '');
+            
+            // Redirect to the correct localhost URL
+            if (folderName === 'test-api') {
+                window.location.href = 'http://localhost/infotess-nj/test-api.html';
+            } else if (folderName === 'check-server') {
+                window.location.href = 'http://localhost/infotess-nj/check-server.php';
+            } else {
+                window.location.href = 'http://localhost/infotess-nj/';
+            }
+        } else {
+            // If we're already on localhost, show a message
+            document.body.innerHTML = `
+                <div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;">
+                    <h1>✅ You're on the correct URL!</h1>
+                    <p>Current URL: <strong>${window.location.href}</strong></p>
+                    <p>If you're seeing this, you should be able to test the API properly.</p>
+                    <a href="/test-api.html" style="background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">
+                        Go to API Test Page
+                    </a>
+                </div>
+            `;
+        }
+    </script>
+</head>
+<body>
+    <div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;">
+        <h1>🔄 Redirecting...</h1>
+        <p>Please wait while we redirect you to the correct URL.</p>
+        <p>If you're not redirected automatically, <a href="http://localhost/infotess-nj/test-api.html">click here</a>.</p>
+    </div>
+</body>
+</html>

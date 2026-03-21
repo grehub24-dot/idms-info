@@ -1,0 +1,16 @@
+{
+  "name": "infotess-idms",
+  "version": "1.0.0",
+  "description": "INFOTESS Student Data Management System",
+  "main": "index.js",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "formidable": "^3.5.4",
+    "jsonwebtoken": "^9.0.0",
+    "mysql2": "^3.2.0",
+    "nodemailer": "^8.0.3"
+  },
+  "engines": {
+    "node": ">=14.x"
+  }
+}

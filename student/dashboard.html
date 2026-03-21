@@ -122,15 +122,33 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            fetch('../api/student/dashboard_data.php')
+            const token = localStorage.getItem('infotess_token');
+            if (!token) {
+                window.location.href = '../login.html';
+                return;
+            }
+
+            fetch('/api/student/dashboard_data', {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
                 .then(res => {
                     if (res.status === 401) {
+                        localStorage.removeItem('infotess_token');
+                        localStorage.removeItem('infotess_user');
                         window.location.href = '../login.html';
                         return;
                     }
-                    return res.json();
+                    return res.json().then(data => ({ status: res.status, data }));
                 })
-                .then(data => {
+                .then(payload => {
+                    if (!payload) return;
+                    const { status, data } = payload;
+                    if ((status === 403 || status === 400) && data && data.redirect) {
+                        window.location.href = data.redirect;
+                        return;
+                    }
                     if (!data || !data.ok) return;
 
                     // User Info

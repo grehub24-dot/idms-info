@@ -117,16 +117,28 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('infotess_token');
+            if (!token) {
+                window.location.href = '../login.html';
+                return;
+            }
             // Load Admin Dashboard Data
-            fetch('../api/admin/dashboard_data.php')
+            fetch('/api/admin/dashboard_data', {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
                 .then(res => {
-                    if (res.status === 401) {
+                    if (res.status === 401 || res.status === 403) {
+                        localStorage.removeItem('infotess_token');
+                        localStorage.removeItem('infotess_user');
                         window.location.href = '../login.html';
-                        return;
+                        return null;
                     }
                     return res.json();
                 })
                 .then(data => {
+                    if (!data) return;
                     if (!data || !data.ok) {
                         document.getElementById('error-message').style.display = 'block';
                         document.getElementById('error-message').textContent = data ? data.error : 'Failed to load dashboard data.';

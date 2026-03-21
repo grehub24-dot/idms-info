@@ -129,16 +129,56 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            const profileApiUrl = '/api/student/profile';
+            const token = localStorage.getItem('infotess_token');
+
+            if (!token) {
+                window.location.href = '../login.html';
+                return;
+            }
+
+            function parseApiResponse(res) {
+                return res.text().then(raw => {
+                    let parsed = {};
+                    try {
+                        parsed = raw ? JSON.parse(raw) : {};
+                    } catch (e) {
+                        throw new Error(raw || 'Server returned an invalid response format.');
+                    }
+                    if (!res.ok) {
+                        throw new Error(parsed.error || parsed.message || `Request failed with status ${res.status}.`);
+                    }
+                    return parsed && parsed.data ? parsed.data : parsed;
+                });
+            }
+
+            function authFetch(url, options = {}) {
+                const headers = {
+                    ...(options.headers || {}),
+                    Authorization: `Bearer ${token}`
+                };
+                return fetch(url, {
+                    ...options,
+                    headers
+                });
+            }
+
             // Load Profile Data
-            fetch('../api/student/profile.php')
+            authFetch(profileApiUrl)
                 .then(res => {
                     if (res.status === 401) {
+                        localStorage.removeItem('infotess_token');
+                        localStorage.removeItem('infotess_user');
                         window.location.href = '../login.html';
                         return;
                     }
-                    return res.json();
+                    return parseApiResponse(res);
                 })
                 .then(data => {
+                    if (data && data.requires_password_reset) {
+                        window.location.href = 'password-reset.html';
+                        return;
+                    }
                     if (!data || !data.ok) return;
                     const s = data.student;
                     document.getElementById('full_name').value = s.full_name;
@@ -160,21 +200,29 @@
                 e.preventDefault();
                 const formData = new FormData(form);
                 
-                fetch('../api/student/profile.php', {
+                authFetch(profileApiUrl, {
                     method: 'POST',
                     body: formData
                 })
-                .then(res => res.json())
+                .then(parseApiResponse)
                 .then(data => {
                     const alertContainer = document.getElementById('alert-container');
-                    if (data.ok) {
-                        alertContainer.innerHTML = '<div class="alert alert-success">Profile updated successfully!</div>';
-                        setTimeout(() => window.location.reload(), 1500);
+                    if (data.ok && data.profile_complete) {
+                        alertContainer.innerHTML = '<div class="alert alert-success">Profile updated successfully! Redirecting to dashboard...</div>';
+                        setTimeout(() => {
+                            window.location.href = 'dashboard.html';
+                        }, 1500);
+                    } else if (data.ok) {
+                        alertContainer.innerHTML = '<div class="alert alert-warning">Profile saved. Upload your picture to continue to dashboard.</div>';
                     } else {
                         alertContainer.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
                     }
                 })
-                .catch(err => console.error('Error updating profile:', err));
+                .catch(err => {
+                    const alertContainer = document.getElementById('alert-container');
+                    alertContainer.innerHTML = `<div class="alert alert-danger">${err.message || 'Failed to update profile.'}</div>`;
+                    console.error('Error updating profile:', err);
+                });
             });
 
             // Preview profile picture before upload

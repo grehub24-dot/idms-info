@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API v2 Test - INFOTESS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .response {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .current-user {
+            background-color: #e7f3ff;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>INFOTESS API v2 Test Suite</h1>
+    
+    <!-- Current User Status -->
+    <div class="current-user" id="current-user" style="display: none;">
+        <h4>✅ Currently Logged In:</h4>
+        <pre id="user-info"></pre>
+        <button onclick="logout()">Logout</button>
+        <button onclick="getProfile()">Get Profile</button>
+        <p style="margin-top: 10px; font-size: 12px; color: #666;">
+            Now you can test "Get Current User" and "Update Profile" - they should work!
+        </p>
+    </div>
+
+    <!-- Health Check -->
+    <div class="test-section">
+        <h3>1. Health Check</h3>
+        <button onclick="testHealth()">Test Health Endpoint</button>
+        <button onclick="testPing()">Test Ping Endpoint (Simple)</button>
+        <button onclick="testRouting()">Test Routing (No DB)</button>
+        <button onclick="testDirect()">Test Direct API File</button>
+        <button onclick="testSetup()">Setup Database & Test User</button>
+        <button onclick="checkDB()">Check Database Structure</button>
+        <button onclick="testLoginCreds()">Show Test Credentials</button>
+        <button onclick="debugPassword()">Debug Password Issue</button>
+        <button onclick="debugRequest()">Debug Request Data</button>
+        <div id="health-response" class="response"></div>
+        <div id="ping-response" class="response"></div>
+        <div id="routing-response" class="response"></div>
+        <div id="direct-response" class="response"></div>
+        <div id="setup-response" class="response"></div>
+        <div id="db-check-response" class="response"></div>
+        <div id="login-creds-response" class="response"></div>
+        <div id="password-debug-response" class="response"></div>
+        <div id="request-debug-response" class="response"></div>
+    </div>
+
+    <!-- Registration -->
+    <div class="test-section">
+        <h3>2. Register New User</h3>
+        <div class="form-group">
+            <label>Email:</label>
+            <input type="email" id="reg-email" value="test@example.com">
+        </div>
+        <div class="form-group">
+            <label>Password:</label>
+            <input type="password" id="reg-password" value="TestPassword123!">
+        </div>
+        <div class="form-group">
+            <label>Role:</label>
+            <select id="reg-role">
+                <option value="student">Student</option>
+                <option value="admin">Admin</option>
+            </select>
+        </div>
+        <button onclick="testRegister()">Register</button>
+        <div id="register-response" class="response"></div>
+    </div>
+
+    <!-- Login -->
+    <div class="test-section">
+        <h3>3. Login</h3>
+        <div class="form-group">
+            <label>Email:</label>
+            <input type="email" id="login-email" value="test@example.com">
+        </div>
+        <div class="form-group">
+            <label>Password:</label>
+            <input type="password" id="login-password" value="TestPassword123!">
+        </div>
+        <button onclick="testLogin()">Login</button>
+        <div id="login-response" class="response"></div>
+    </div>
+
+    <!-- Get Current User -->
+    <div class="test-section">
+        <h3>4. Get Current User</h3>
+        <button onclick="testGetCurrentUser()">Get Current User</button>
+        <div id="me-response" class="response"></div>
+    </div>
+
+    <!-- Password Reset Flow -->
+    <div class="test-section">
+        <h3>6. Password Reset Flow (Your System Design)</h3>
+        <div style="background: #e7f3ff; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
+            <h4>System Flow:</h4>
+            <ol>
+                <li>Admin creates student with temporary password</li>
+                <li>Student uses temporary password to set permanent password</li>
+                <li>Student can then login with permanent password</li>
+            </ol>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <h5>Step 1: Generate Temp Password</h5>
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="forgot-email" value="test@example.com">
+                </div>
+                <button onclick="testForgotPassword()">Generate Temporary Password</button>
+                <div id="forgot-response" class="response"></div>
+            </div>
+            
+            <div>
+                <h5>Step 2: Set Permanent Password</h5>
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="reset-email" value="test@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Temporary Password:</label>
+                    <input type="text" id="temp-password" placeholder="From step 1">
+                </div>
+                <div class="form-group">
+                    <label>New Permanent Password:</label>
+                    <input type="password" id="new-permanent-password" value="MySecurePassword123!">
+                </div>
+                <button onclick="testResetPassword()">Set Permanent Password</button>
+                <div id="reset-response" class="response"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complete Student Onboarding Flow -->
+    <div class="test-section">
+        <h3>7. Complete Student Onboarding Flow</h3>
+        <div style="background: #e7f3ff; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
+            <h4>🎓 Complete Student Journey:</h4>
+            <ol>
+                <li><strong>Student Registration</strong> → Temp password sent via SMS</li>
+                <li><strong>Login with Temp Password</strong> → Forced password reset</li>
+                <li><strong>Set Permanent Password</strong> → Access granted</li>
+                <li><strong>Complete Profile</strong> → Upload picture, add details</li>
+                <li><strong>Redirect to Dashboard</strong> → Full system access</li>
+            </ol>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div>
+                <h5>Step 1: Student Registration</h5>
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="student-email" value="newstudent@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Role:</label>
+                    <select id="student-role">
+                        <option value="student">Student</option>
+                        <option value="executive">Executive</option>
+                    </select>
+                </div>
+                <button onclick="testStudentRegistration()">Register Student</button>
+                <div id="student-reg-response" class="response"></div>
+            </div>
+            
+            <div>
+                <h5>Step 2: Complete Login Flow</h5>
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="flow-email" value="newstudent@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Temporary Password:</label>
+                    <input type="text" id="flow-temp-password" placeholder="From registration">
+                </div>
+                <div class="form-group">
+                    <label>Permanent Password:</label>
+                    <input type="password" id="flow-permanent-password" value="StudentSecurePass123!">
+                </div>
+                <button onclick="testCompleteLoginFlow()">Test Complete Flow</button>
+                <div id="complete-flow-response" class="response"></div>
+            </div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <h5>Step 3: Complete Profile</h5>
+                <div class="form-group">
+                    <label>Full Name:</label>
+                    <input type="text" id="profile-fullname" value="John Student">
+                </div>
+                <div class="form-group">
+                    <label>Phone:</label>
+                    <input type="text" id="profile-phone" value="+1234567890">
+                </div>
+                <div class="form-group">
+                    <label>Bio:</label>
+                    <input type="text" id="profile-bio" value="Computer Science Student">
+                </div>
+                <button onclick="testCompleteProfile()">Complete Profile</button>
+                <div id="complete-profile-response" class="response"></div>
+            </div>
+            
+            <div>
+                <h5>Setup Profile Table</h5>
+                <button onclick="setupProfileTable()">Create Profile Table</button>
+                <div id="profile-table-response" class="response"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Production Readiness Check -->
+    <div class="test-section">
+        <h3>8. Production Readiness Check</h3>
+        <div style="background: #fff3cd; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
+            <h4>🚀 Production Deployment Checklist:</h4>
+            <ul>
+                <li>✅ SMS Service Integration</li>
+                <li>✅ Debug Info Removed from Responses</li>
+                <li>✅ File Upload Directory Permissions</li>
+                <li>✅ Image Validation & Processing</li>
+                <li>✅ Security Headers & Rate Limiting</li>
+                <li>✅ Environment Configuration</li>
+            </ul>
+        </div>
+        
+        <button onclick="checkProductionReady()">Check Production Readiness</button>
+        <div id="production-check-response" class="response"></div>
+        
+        <div style="margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <h5>Production Registration Test</h5>
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="prod-email" value="prodtest@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Phone (+1234567890):</label>
+                    <input type="text" id="prod-phone" value="+1234567890">
+                </div>
+                <div class="form-group">
+                    <label>Full Name:</label>
+                    <input type="text" id="prod-name" value="Production Test">
+                </div>
+                <button onclick="testProductionRegistration()">Test Production Registration</button>
+                <div id="prod-reg-response" class="response"></div>
+            </div>
+            
+            <div>
+                <h5>Environment Variables</h5>
+                <div style="background: #f8f9fa; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 12px;">
+                    <strong>Required for Vercel:</strong><br>
+                    DB_HOST, DB_NAME, DB_USER, DB_PASS<br>
+                    JWT_SECRET (32+ chars)<br>
+                    SMS_ENABLED=true<br>
+                    SMS_API_KEY, SMS_API_URL<br>
+                    APP_ENV=production<br>
+                    APP_DEBUG=false
+                </div>
+                <button onclick="showEnvConfig()">Show .env.production</button>
+                <div id="env-config-response" class="response"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Profile -->
+    <div class="test-section">
+        <h3>5. Update Profile</h3>
+        <div class="form-group">
+            <label>Email:</label>
+            <input type="email" id="update-email" value="newemail@example.com">
+        </div>
+        <button onclick="testUpdateProfile()">Update Profile</button>
+        <div id="update-response" class="response"></div>
+    </div>
+
+    <script src="js/api-v2.js"></script>
+    <script>
+        // Update current user display
+        function updateUserDisplay() {
+            const userDiv = document.getElementById('current-user');
+            const userInfo = document.getElementById('user-info');
+            
+            if (api.isAuthenticated()) {
+                const user = api.getUserFromToken();
+                userDiv.style.display = 'block';
+                userInfo.textContent = JSON.stringify(user, null, 2);
+            } else {
+                userDiv.style.display = 'none';
+            }
+        }
+
+        // Test functions
+        async function testHealth() {
+            const responseDiv = document.getElementById('health-response');
+            try {
+                const response = await fetch('/infotess-nj/api/v2/health.php', {
+                    headers: api.getHeaders()
+                });
+                const result = await response.json();
+                responseDiv.className = 'response success';
+                responseDiv.textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                responseDiv.className = 'response error';
+                responseDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function testPing() {
+            const responseDiv = document.getElementById('ping-response');
+            try {
+                const response = await fetch('/infotess-nj/api/v2/ping.php', {
+                    headers: api.getHeaders()
+                });
+                const result = await response.json();
+                responseDiv.className = 'response success';
+                responseDiv.textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                responseDiv.className = 'response error';
+                responseDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function testRouting() {
+            const responseDiv = document.getElementById('routing-response');
+            try {
+                const response = await fetch('/infotess-nj/api/v2/direct-test.php', {
+                    headers: api.getHeaders()
+                });
+                const result = await response.json();
+                responseDiv.className = 'response success';
+                responseDiv.textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                responseDiv.className = 'response error';
+                responseDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function testDirect() {
+            const responseDiv = document.getElementById('direct-response');
+            try {
+                const response = await fetch('/infotess-nj/api/v2/direct-test.php', {
+                    headers: api.getHeaders()
+                });
+                const result = await response.json();
+                responseDiv.className = 'response success';
+                responseDiv.textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                responseDiv.className = 'response error';
+                responseDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function testSetup() {
+            const responseDiv = document.getElementById('setup-response');
+            try {
+                const response = await fetch('/infotess-nj/api/v2/setup-test.php', {
+                    headers: api.getHeaders()
+                });
+                const result = await response.json();
+                responseDiv.className = 'response success';
+                responseDiv.textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                responseDiv.className = 'response error';
+                responseDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function checkDB() {
+            const responseDiv = document.getElementById('db-check-response');
+            try {
+                const response = await fetch('/infotess-nj/api/v2/check-db.php', {
+                    headers: api.getHeaders()
+                });
+                const result = await response.json();
+                responseDiv.className = 'response success';
+                responseDiv.textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                responseDiv.className = 'response error';
+                responseDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function testLoginCreds() {
+            const responseDiv = document.getElementById('login-creds-response');
+            try {
+                const response = await fetch('/infotess-nj/api/v2/test-login.php', {
+                    headers: api.getHeaders()
+                });
+                const result = await response.json();
+                responseDiv.className = 'response success';
+                responseDiv.textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                responseDiv.className = 'response error';
+                responseDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function debugRequest() {
+            const responseDiv = document.getElementById('request-debug-response');
+            
+            // Test data that should be sent
+            const testData = {
+                email: 'test@example.com',
+                temp_password: 'c929b2291c14b607',
+                new_password: 'TestPassword123!'
+            };
+            
+            try {
+                const response = await fetch('/infotess-nj/api/v2/debug-request.php', {
+                    method: 'POST',
+                    headers: api.getHeaders(),
+                    body: JSON.stringify(testData)
+                });
+                const result = await response.json();
+                responseDiv.className = 'response success';
+                responseDiv.textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                responseDiv.className = 'response error';
+                responseDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function debugPassword() {
+            const responseDiv = document.getElementById('password-debug-response');
+            try {
+                const response = await fetch('/infotess-nj/api/v2/debug-password.php', {
+                    headers: api.getHeaders()
+                });
+                const result = await response.json();
+                responseDiv.className = 'response success';
+                responseDiv.textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                responseDiv.className = 'response error';
+                responseDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function testRegister() {
+            const responseDiv = document.getElementById('register-response');
+            const userData = {
+                email: document.getElementById('reg-email').value,
+                password: document.getElementById('reg-password').value,
+                role: document.getElementById('reg-role').value
+            };
+
+            try {
+                const response = await fetch('/infotess-nj/api/v2/auth/register.php', {
+                    method: 'POST',
+                    headers: api.getHeaders(),
+                    body: JSON.stringify(userData)
+                });
+                const result = await response.json();
+                responseDiv.className = 'response success';
+                responseDiv.textContent = JSON.stringify(result, null, 2);
+                
+                // Store the token automatically
+                if (result.data && result.data.token) {
+                    api.setToken(result.data.token);
+                    updateUserDisplay();
+                }
+            } catch (error) {
+                responseDiv.className = 'response error';
+                responseDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function testLogin() {
+            const responseDiv = document.getElementById('login-response');
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                const response = await fetch('/infotess-nj/api/v2/auth/login.php', {
+                    method: 'POST',
+                    headers: api.getHeaders(),
+                    body: JSON.stringify({ email, password })
+                });
+                const result = await response.json();
+                responseDiv.className = 'response success';
+                responseDiv.textContent = JSON.stringify(result, null, 2);
+                
+                // Store the token automatically
+                if (result.data && result.data.token) {
+                    api.setToken(result.data.token);
+                    updateUserDisplay();
+                }
+            } catch (error) {
+                responseDiv.className = 'response error';
+                responseDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function testGetCurrentUser() {
+            const responseDiv = document.getElementById('me-response');
+            try {
+                const response = await fetch('/infotess-nj/api/v2/auth/me.php', {
+                    headers: api.getHeaders()
+                });
+                const result = await response.json();
+                responseDiv.className = 'response success';
+                responseDiv.textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                responseDiv.className = 'response error';
+                responseDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function testForgotPassword() {
+            const responseDiv = document.getElementById('forgot-response');
+            const email = document.getElementById('forgot-email').value;
+            
+            try {
+                const response = await fetch('/infotess-nj/api/v2/auth/forgot-password.php', {
+                    method: 'POST',
+                    headers: api.getHeaders(),
+                    body: JSON.stringify({ email })
+                });
+                const result = await response.json();
+                responseDiv.className = 'response success';
+                responseDiv.textContent = JSON.stringify(result, null, 2);
+                
+                // Auto-fill temporary password if available
+                if (result.data && result.data.debug_info && result.data.debug_info.temp_password) {
+                    document.getElementById('temp-password').value = result.data.debug_info.temp_password;
+                }
+            } catch (error) {
+                responseDiv.className = 'response error';
+                responseDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function testResetPassword() {
+            const responseDiv = document.getElementById('reset-response');
+            const data = {
+                email: document.getElementById('reset-email').value,
+                temp_password: document.getElementById('temp-password').value,
+                new_password: document.getElementById('new-permanent-password').value
+            };
+            
+            try {
+                const response = await fetch('/infotess-nj/api/v2/auth/reset-password.php', {
+                    method: 'POST',
+                    headers: api.getHeaders(),
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                responseDiv.className = 'response success';
+                responseDiv.textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                responseDiv.className = 'response error';
+                responseDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function checkProductionReady() {
+            const responseDiv = document.getElementById('production-check-response');
+            try {
+                const response = await fetch('/infotess-nj/api/v2/check-production-ready.php', {
+                    headers: api.getHeaders()
+                });
+                const result = await response.json();
+                responseDiv.className = result.data.overall_status === 'ready' ? 'response success' : 'response error';
+                responseDiv.textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                responseDiv.className = 'response error';
+                responseDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function testProductionRegistration() {
+            const responseDiv = document.getElementById('prod-reg-response');
+            const userData = {
+                email: document.getElementById('prod-email').value,
+                phone_number: document.getElementById('prod-phone').value,
+                full_name: document.getElementById('prod-name').value,
+                role: 'student'
+            };
+            
+            try {
+                const response = await fetch('/infotess-nj/api/v2/auth/register-production.php', {
+                    method: 'POST',
+                    headers: api.getHeaders(),
+                    body: JSON.stringify(userData)
+                });
+                const result = await response.json();
+                responseDiv.className = result.success ? 'response success' : 'response error';
+                responseDiv.textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                responseDiv.className = 'response error';
+                responseDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function showEnvConfig() {
+            const responseDiv = document.getElementById('env-config-response');
+            try {
+                const response = await fetch('/infotess-nj/.env.production');
+                const text = await response.text();
+                responseDiv.className = 'response success';
+                responseDiv.textContent = text;
+            } catch (error) {
+                responseDiv.className = 'response error';
+                responseDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function setupProfileTable() {
+            const responseDiv = document.getElementById('profile-table-response');
+            try {
+                const response = await fetch('/infotess-nj/api/v2/setup-profile-table.php', {
+                    headers: api.getHeaders()
+                });
+                const result = await response.json();
+                responseDiv.className = 'response success';
+                responseDiv.textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                responseDiv.className = 'response error';
+                responseDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function testStudentRegistration() {
+            const responseDiv = document.getElementById('student-reg-response');
+            const userData = {
+                email: document.getElementById('student-email').value,
+                role: document.getElementById('student-role').value,
+                full_name: 'Test Student',
+                phone_number: '+1234567890'
+            };
+            
+            try {
+                const response = await fetch('/infotess-nj/api/v2/auth/register-production.php', {
+                    method: 'POST',
+                    headers: api.getHeaders(),
+                    body: JSON.stringify(userData)
+                });
+                const result = await response.json();
+                responseDiv.className = 'response success';
+                responseDiv.textContent = JSON.stringify(result, null, 2);
+                
+                // Auto-fill temporary password if available in debug mode
+                if (result.data && result.data.debug_info && result.data.debug_info.temp_password) {
+                    document.getElementById('flow-temp-password').value = result.data.debug_info.temp_password;
+                }
+            } catch (error) {
+                responseDiv.className = 'response error';
+                responseDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function testCompleteLoginFlow() {
+            const responseDiv = document.getElementById('complete-flow-response');
+            const email = document.getElementById('flow-email').value;
+            const tempPassword = document.getElementById('flow-temp-password').value;
+            const permanentPassword = document.getElementById('flow-permanent-password').value;
+            
+            try {
+                // Step 1: Try login with temp password
+                const loginResponse = await fetch('/infotess-nj/api/v2/auth/login-complete.php', {
+                    method: 'POST',
+                    headers: api.getHeaders(),
+                    body: JSON.stringify({ email, password: tempPassword })
+                });
+                const loginResult = await loginResponse.json();
+                
+                if (loginResult.requires_password_reset) {
+                    // Step 2: Reset password
+                    const resetResponse = await fetch('/infotess-nj/api/v2/auth/reset-password.php', {
+                        method: 'POST',
+                        headers: api.getHeaders(),
+                        body: JSON.stringify({
+                            email,
+                            temp_password: tempPassword,
+                            new_password: permanentPassword
+                        })
+                    });
+                    const resetResult = await resetResponse.json();
+                    
+                    // Step 3: Login with permanent password
+                    const finalLoginResponse = await fetch('/infotess-nj/api/v2/auth/login-complete.php', {
+                        method: 'POST',
+                        headers: api.getHeaders(),
+                        body: JSON.stringify({ email, password: permanentPassword })
+                    });
+                    const finalLoginResult = await finalLoginResponse.json();
+                    
+                    responseDiv.className = 'response success';
+                    responseDiv.textContent = JSON.stringify({
+                        step1_login_attempt: loginResult,
+                        step2_password_reset: resetResult,
+                        step3_final_login: finalLoginResult,
+                        flow_complete: finalLoginResult.success ? true : false
+                    }, null, 2);
+                    
+                    // Store token for profile completion
+                    if (finalLoginResult.success && finalLoginResult.token) {
+                        api.setToken(finalLoginResult.token);
+                        updateUserDisplay();
+                    }
+                } else {
+                    responseDiv.className = 'response success';
+                    responseDiv.textContent = JSON.stringify(loginResult, null, 2);
+                }
+            } catch (error) {
+                responseDiv.className = 'response error';
+                responseDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function testCompleteProfile() {
+            const responseDiv = document.getElementById('complete-profile-response');
+            const profileData = {
+                full_name: document.getElementById('profile-fullname').value,
+                phone_number: document.getElementById('profile-phone').value,
+                bio: document.getElementById('profile-bio').value
+            };
+            
+            try {
+                const response = await fetch('/infotess-nj/api/v2/users/complete-profile.php', {
+                    method: 'POST',
+                    headers: api.getHeaders(),
+                    body: JSON.stringify(profileData)
+                });
+                const result = await response.json();
+                responseDiv.className = 'response success';
+                responseDiv.textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                responseDiv.className = 'response error';
+                responseDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function testUpdateProfile() {
+            const responseDiv = document.getElementById('update-response');
+            const profileData = {
+                email: document.getElementById('update-email').value
+            };
+
+            try {
+                const response = await fetch('/infotess-nj/api/v2/users/profile.php', {
+                    method: 'PUT',
+                    headers: api.getHeaders(),
+                    body: JSON.stringify(profileData)
+                });
+                const result = await response.json();
+                responseDiv.className = 'response success';
+                responseDiv.textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                responseDiv.className = 'response error';
+                responseDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        function logout() {
+            api.logout();
+            updateUserDisplay();
+            // Clear all response divs
+            document.querySelectorAll('.response').forEach(div => div.textContent = '');
+        }
+
+        function getProfile() {
+            testGetCurrentUser();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateUserDisplay();
+        });
+    </script>
+</body>
+</html>

@@ -22,19 +22,19 @@
             <form id="register-form" style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
                 <div class="form-group">
                     <label>Full Name</label>
-                    <input type="text" id="full_name" name="full_name" class="form-control" required>
+                    <input type="text" id="full_name" name="full_name" class="form-control" required autocomplete="name">
                 </div>
                 <div class="form-group">
                     <label>Index Number</label>
-                    <input type="text" id="index_number" name="index_number" class="form-control" required>
+                    <input type="text" id="index_number" name="index_number" class="form-control" required autocomplete="username">
                 </div>
                 <div class="form-group">
                     <label>Email</label>
-                    <input type="email" id="email" name="email" class="form-control" required>
+                    <input type="email" id="email" name="email" class="form-control" required autocomplete="email">
                 </div>
                 <div class="form-group">
-                    <label>Phone Number</label>
-                    <input type="text" id="phone_number" name="phone_number" class="form-control" required>
+                    <label>Phone Number (e.g., 0536282694)</label>
+                    <input type="text" id="phone_number" name="phone_number" class="form-control" required placeholder="0536282694 or +233536282694" autocomplete="tel">
                 </div>
                 <div class="form-group" style="grid-column: span 2;">
                     <label>Programme / Department</label>
@@ -140,33 +140,88 @@
 
             const payload = {
                 full_name: document.getElementById('full_name').value,
-                index_number: document.getElementById('index_number').value,
                 email: document.getElementById('email').value,
-                phone_number: document.getElementById('phone_number').value,
+                phone_number: formatPhoneNumber(document.getElementById('phone_number').value),
+                index_number: document.getElementById('index_number').value,
                 department: document.getElementById('department').value,
                 level: document.getElementById('level').value,
                 class: document.getElementById('class').value,
-                stream: document.getElementById('stream').value
+                stream: document.getElementById('stream').value,
+                role: 'student'
             };
+            
+            // Function to format Ghana phone numbers to international format
+            function formatPhoneNumber(phone) {
+                // Remove all non-digit characters
+                phone = phone.replace(/\D/g, '');
+                
+                // Handle Ghana phone number formats
+                if (phone.startsWith('0') && phone.length === 10) {
+                    // Convert 0536282694 to +233536282694
+                    return '+233' + phone.substring(1);
+                } else if (phone.startsWith('233') && phone.length === 12) {
+                    // Convert 233536282694 to +233536282694
+                    return '+' + phone;
+                } else if (phone.startsWith('+233') && phone.length === 13) {
+                    // Already in correct format
+                    return phone;
+                } else {
+                    // Return as-is if it doesn't match expected patterns
+                    return phone.startsWith('+') ? phone : '+' + phone;
+                }
+            }
 
-            fetch('api/public/register.php', {
+            fetch('api/public/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             })
-            .then(res => res.json())
+            .then(async res => {
+                const raw = await res.text();
+                let parsed = {};
+                try {
+                    parsed = raw ? JSON.parse(raw) : {};
+                } catch (e) {
+                    throw { error: 'Server returned an invalid response format.', details: raw };
+                }
+
+                if (!res.ok) {
+                    if (!parsed || Object.keys(parsed).length === 0) {
+                        throw { error: `Request failed with status ${res.status}.` };
+                    }
+                    if (!parsed.error && parsed.message) {
+                        parsed.error = parsed.message;
+                    }
+                    throw parsed;
+                }
+
+                return parsed;
+            })
             .then(data => {
+                const payloadData = data && data.data ? data.data : data;
                 alertBox.style.display = 'block';
-                if (data.ok) {
+                if (payloadData.ok || data.success) {
                     alertBox.className = 'alert alert-success';
-                    alertBox.textContent = data.message;
-                    document.getElementById('register-form').reset();
+                    const delivery = payloadData.delivery || {};
+                    const emailSent = delivery.email_sent === true;
+                    const smsSent = delivery.sms_sent === true;
+                    const messageText = payloadData.message || 'Registration successful! Use your index number as username. Please login and reset your password.';
+                    alertBox.innerHTML = `<div>${messageText}</div>
+                        <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+                            <span style="padding:4px 8px; border-radius:12px; font-size:12px; background:${emailSent ? '#d4edda' : '#f8d7da'}; color:${emailSent ? '#155724' : '#721c24'};">Email: ${emailSent ? 'Sent' : 'Not sent'}</span>
+                            <span style="padding:4px 8px; border-radius:12px; font-size:12px; background:${smsSent ? '#d4edda' : '#f8d7da'}; color:${smsSent ? '#155724' : '#721c24'};">SMS: ${smsSent ? 'Sent' : 'Not sent'}</span>
+                        </div>`;
                     setTimeout(() => {
-                        window.location.href = '/login.html';
+                        window.location.href = 'login.html';
                     }, 3000);
                 } else {
                     alertBox.className = 'alert alert-danger';
-                    alertBox.textContent = data.error || 'An error occurred';
+                    if (payloadData.details) {
+                        const errorMessages = Object.values(payloadData.details).join(', ');
+                        alertBox.textContent = 'Validation failed: ' + errorMessages;
+                    } else {
+                        alertBox.textContent = payloadData.error || data.error || 'An error occurred';
+                    }
                     btn.disabled = false;
                     btn.textContent = 'Register Now';
                 }
@@ -174,7 +229,11 @@
             .catch(err => {
                 alertBox.style.display = 'block';
                 alertBox.className = 'alert alert-danger';
-                alertBox.textContent = 'Network error. Please try again.';
+                if (err && err.details && typeof err.details === 'object') {
+                    alertBox.textContent = 'Validation failed: ' + Object.values(err.details).join(', ');
+                } else {
+                    alertBox.textContent = (err && err.error) ? err.error : 'Network error. Please try again.';
+                }
                 btn.disabled = false;
                 btn.textContent = 'Register Now';
             });

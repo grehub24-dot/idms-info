@@ -19,13 +19,13 @@
             
             <form id="login-form" style="text-align: left;">
                 <div class="form-group">
-                    <label for="identifier">Email or Index Number</label>
-                    <input type="text" name="identifier" id="identifier" class="form-control" required placeholder="Enter Email (Admin) or Index No. (Student)">
+                    <label for="identifier">Username (Index Number) / Email Address</label>
+                    <input type="text" name="identifier" id="identifier" class="form-control" required placeholder="Enter your index number (username) or email address" autocomplete="username">
                 </div>
                 
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <input type="password" name="password" id="password" class="form-control" required placeholder="Enter Password">
+                    <input type="password" name="password" id="password" class="form-control" required placeholder="Enter Password" autocomplete="current-password">
                 </div>
                 
                 <button type="submit" class="btn-submit" id="submit-btn">Login</button>
@@ -41,102 +41,56 @@
 
     <script src="js/components.js"></script>
     <script>
-        const apiUrl = (path) => {
-            const clean = String(path || '').replace(/^\/+/, '');
-            if (clean.startsWith('api/')) return clean;
-            return 'api/' + clean;
-        };
-
-        const backendApiUrl = (path) => {
-            const clean = String(path || '').replace(/^\/+/, '');
-            if (clean.startsWith('api/')) return 'backend/' + clean;
-            return 'backend/api/' + clean;
-        };
-
-        // Check if already logged in
-        document.addEventListener('DOMContentLoaded', () => {
-            const getMe = (url) => fetch(url).then(res => {
-                if (res.status === 404) {
-                    throw new Error('not_found');
-                }
-                return res.json();
-            });
-
-            getMe(apiUrl('auth/me.php'))
-                .catch((e) => {
-                    if (e && e.message === 'not_found') {
-                        return getMe(backendApiUrl('auth/me.php'));
-                    }
-                    throw e;
-                })
-                .then(data => {
-                    if (data.ok && data.actor) {
-                        const role = data.actor.role || 'student';
-                        if (role === 'admin' || role === 'super_admin') {
-                            window.location.href = 'admin/dashboard.html'; 
-                        } else {
-                            window.location.href = 'student/dashboard.html';
-                        }
-                    }
-                })
-                .catch(() => { /* Not logged in, continue */ });
-        });
-
-        document.getElementById('login-form').addEventListener('submit', function(e) {
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             const btn = document.getElementById('submit-btn');
             const alertBox = document.getElementById('alert-message');
             btn.disabled = true;
             btn.textContent = 'Logging in...';
 
-            const payload = {
-                identifier: document.getElementById('identifier').value,
-                password: document.getElementById('password').value
-            };
+            const identifier = document.getElementById('identifier').value.trim();
+            const password = document.getElementById('password').value;
 
-            const doLogin = (url) => fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            }).then(res => {
-                if (res.status === 404) {
-                    throw new Error('not_found');
-                }
-                return res;
-            });
+            try {
+                const response = await fetch('/api/v2/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ identifier, password })
+                });
+                const result = await response.json();
 
-            doLogin(apiUrl('v2/login.php'))
-            .catch((e) => {
-                if (e && e.message === 'not_found') {
-                    return doLogin(backendApiUrl('v2/login.php'));
+                if (!result.success) {
+                    throw new Error(result.error || 'Invalid credentials.');
                 }
-                throw e;
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    // Fix redirect path depending on where it's pointing
-                    let redirectUrl = data.redirect.replace('.php', '.html');
-                    // Remove leading slash if it exists
-                    if (redirectUrl.startsWith('/')) {
-                        redirectUrl = redirectUrl.substring(1);
+
+                // Save token and user info
+                if (result.token) {
+                    localStorage.setItem('infotess_token', result.token);
+                    localStorage.setItem('infotess_user', JSON.stringify(result.user));
+                }
+
+                let redirectTarget = String(result.redirect || '').replace('.php', '.html');
+                if (!redirectTarget) {
+                    const isStudent = result.user && result.user.role === 'student';
+                    if (isStudent && result.requires_password_reset) {
+                        redirectTarget = 'student/password-reset.html';
+                    } else if (isStudent && !result.is_profile_complete) {
+                        redirectTarget = 'student/profile.html';
+                    } else if (isStudent) {
+                        redirectTarget = 'student/dashboard.html';
+                    } else {
+                        redirectTarget = 'admin/dashboard.html';
                     }
-                    window.location.href = redirectUrl;
-                } else {
-                    alertBox.style.display = 'block';
-                    alertBox.className = 'alert alert-danger';
-                    alertBox.textContent = data.error || 'Invalid credentials.';
-                    btn.disabled = false;
-                    btn.textContent = 'Login';
                 }
-            })
-            .catch(err => {
+                window.location.href = redirectTarget;
+                
+            } catch (error) {
                 alertBox.style.display = 'block';
                 alertBox.className = 'alert alert-danger';
-                alertBox.textContent = 'Network error. Please try again.';
+                alertBox.textContent = error.message || 'Invalid credentials.';
                 btn.disabled = false;
                 btn.textContent = 'Login';
-            });
+            }
         });
     </script>
 </body>

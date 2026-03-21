@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Student - INFOTESS SDMS</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header" style="text-align: center; padding: 20px 10px;">
+                <img src="../images/infotess.png" alt="INFOTESS Logo" style="width: 80px; height: 80px; margin-bottom: 10px; border-radius: 50%; background: #fff; padding: 5px;">
+                <h3>INFOTESS Admin</h3>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="students" class="active"><i class="fas fa-user-graduate"></i> Students</a></li>
+                <li><a href="payments"><i class="fas fa-money-bill-wave"></i> Payments</a></li>
+                <li><a href="reports"><i class="fas fa-chart-bar"></i> Reports</a></li>
+                <li><a href="verify"><i class="fas fa-qrcode"></i> Verify Receipt</a></li>
+                <li><a href="users"><i class="fas fa-users-cog"></i> User Management</a></li>
+                <li><a href="messaging"><i class="fas fa-envelope"></i> Messaging</a></li>
+                <li><a href="inbox"><i class="fas fa-inbox"></i> Inbox</a></li>
+                <li><a href="module_settings"><i class="fas fa-cogs"></i> Module Settings</a></li>
+                <li><a href="settings"><i class="fas fa-tools"></i> System Settings</a></li>
+                <li><a href="../logout.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar" style="display:flex; justify-content:space-between; align-items:center;">
+                <h2>Edit Student</h2>
+                <a href="students" class="btn-secondary" style="padding: 10px 14px;">Back to List</a>
+            </div>
+
+            <div id="alert" style="display:none;"></div>
+
+            <div class="card">
+                <form id="edit-form" enctype="multipart/form-data" style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                    <input type="hidden" name="student_id" id="student_id">
+                    <div style="grid-column: span 2; text-align: center; margin-bottom: 10px;">
+                        <img id="profile-img" src="../images/user-placeholder.png" alt="Current Profile" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 2px solid #ddd; margin-bottom: 10px;">
+                        <br>
+                        <label>Update Profile Picture</label><br>
+                        <input type="file" name="profile_picture" id="profile_picture" class="form-control" accept="image/*">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" name="full_name" id="full_name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Index Number</label>
+                        <input type="text" name="index_number" id="index_number" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" name="email" id="email" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="text" name="phone_number" id="phone_number" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Programme / Department</label>
+                        <select name="department" id="department" class="form-control" required>
+                            <option value="">-- Select Programme --</option>
+                            <optgroup label="Bachelor's Degree Programmes">
+                                <option value="B.Sc. Information Technology">B.Sc. Information Technology</option>
+                                <option value="B.Sc. Cyber Security and Digital Forensics">B.Sc. Cyber Security and Digital Forensics</option>
+                                <option value="B.Ed. Computing with Artificial Intelligence (AI)">B.Ed. Computing with Artificial Intelligence (AI)</option>
+                                <option value="B.Ed. Computing with Internet of Things (IOT)">B.Ed. Computing with Internet of Things (IOT)</option>
+                                <option value="B.Ed. Information Technology">B.Ed. Information Technology</option>
+                            </optgroup>
+                            <optgroup label="Diploma Programmes">
+                                <option value="Diploma in Cyber Security and Digital Forensics">Diploma in Cyber Security and Digital Forensics</option>
+                                <option value="Diploma in Information Technology">Diploma in Information Technology</option>
+                            </optgroup>
+                            <optgroup label="Postgraduate Programmes">
+                                <option value="M. Phil. Information Technology">M. Phil. Information Technology</option>
+                                <option value="M. Sc. Information Technology Education">M. Sc. Information Technology Education</option>
+                                <option value="M. Phil Information Technology (Top-up)">M. Phil Information Technology (Top-up)</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Level</label>
+                        <select name="level" id="level" class="form-control" required>
+                            <option value="100">100</option>
+                            <option value="200">200</option>
+                            <option value="300">300</option>
+                            <option value="400">400</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Class</label>
+                        <select name="class_name" id="class_name" class="form-control">
+                            <option value="">-- Select Class --</option>
+                            <optgroup label="IT">
+                                <option>IT A</option><option>IT B</option><option>IT C</option><option>IT D</option>
+                                <option>IT E</option><option>IT F</option><option>IT G</option><option>IT H</option>
+                            </optgroup>
+                            <optgroup label="ITE">
+                                <option>ITE A</option><option>ITE B</option><option>ITE C</option><option>ITE D</option>
+                                <option>ITE E</option><option>ITE F</option><option>ITE G</option><option>ITE H</option>
+                                <option>ITE I</option><option>ITE J</option><option>ITE K</option>
+                            </optgroup>
+                            <optgroup label="CB">
+                                <option>CB A</option><option>CB B</option><option>CB C</option><option>CB D</option>
+                                <option>CB E</option><option>CB F</option><option>CB G</option><option>CB H</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Stream</label>
+                        <select name="stream" id="stream" class="form-control">
+                            <option value="">-- Select Stream --</option>
+                            <option>Regular</option>
+                            <option>Sandwich</option>
+                            <option>Evening</option>
+                        </select>
+                    </div>
+                    <div style="grid-column: span 2; margin-top: 10px;">
+                        <button type="submit" class="btn-primary">Update Student Details</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function qs(name) {
+            const m = new URLSearchParams(location.search);
+            return m.get(name);
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('infotess_token');
+            if (!token) { window.location.href = '../login.html'; return; }
+            const alertBox = document.getElementById('alert');
+            function showAlert(type, msg) {
+                alertBox.className = 'alert ' + (type === 'error' ? 'alert-danger' : 'alert-success');
+                alertBox.textContent = msg;
+                alertBox.style.display = 'block';
+            }
+            const studentId = qs('id');
+            const studentIndex = qs('index');
+            if (!studentId && !studentIndex) {
+                showAlert('error', 'Missing student reference');
+                return;
+            }
+            const fetchUrl = studentId ? `/api/admin/students_list.php?id=${encodeURIComponent(studentId)}` : `/api/admin/students_list.php?index_number=${encodeURIComponent(studentIndex)}`;
+            fetch(fetchUrl, { headers: { Authorization: `Bearer ${token}` } })
+                .then(res => res.json())
+                .then(data => {
+                    if (!data || !data.ok || !data.student) throw new Error(data && data.error ? data.error : 'Student not found');
+                    const s = data.student;
+                    document.getElementById('student_id').value = s.student_id;
+                    document.getElementById('full_name').value = s.full_name || '';
+                    document.getElementById('index_number').value = s.index_number || '';
+                    document.getElementById('email').value = s.email || '';
+                    document.getElementById('phone_number').value = s.phone || '';
+                    document.getElementById('department').value = s.department || '';
+                    document.getElementById('level').value = s.level || '';
+                    if (document.getElementById('class_name')) document.getElementById('class_name').value = s.class_name || '';
+                    if (document.getElementById('stream')) document.getElementById('stream').value = s.stream || '';
+                    if (s.profile_picture) {
+                        document.getElementById('profile-img').src = '../' + s.profile_picture;
+                    }
+                })
+                .catch(err => showAlert('error', err.message || 'Failed to load student'));
+
+            document.getElementById('profile_picture').addEventListener('change', function () {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = e => { document.getElementById('profile-img').src = e.target.result; };
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+
+            const form = document.getElementById('edit-form');
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const fd = new FormData(form);
+                fetch('/api/admin/students_update.php', {
+                    method: 'PUT',
+                    headers: { Authorization: `Bearer ${token}` },
+                    body: fd
+                })
+                .then(async res => {
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok || !data.ok) {
+                        throw new Error(data.error || `Update failed with status ${res.status}`);
+                    }
+                    return data;
+                })
+                .then(() => {
+                    showAlert('success', 'Student updated successfully');
+                    setTimeout(() => window.location.href = 'students', 1200);
+                })
+                .catch(err => showAlert('error', err.message || 'Update failed'));
+            });
+        });
+    </script>
+</body>
+</html>

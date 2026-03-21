@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>URL Debug Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .wrong { background: #f8d7da; border: 1px solid #f5c6cb; padding: 15px; border-radius: 4px; margin: 10px 0; }
+        .correct { background: #d4edda; border: 1px solid #c3e6cb; padding: 15px; border-radius: 4px; margin: 10px 0; }
+        .info { background: #e7f3ff; border: 1px solid #b3d9ff; padding: 15px; border-radius: 4px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>🔍 URL Debug Test</h1>
+    
+    <div id="url-info"></div>
+    
+    <h2>🧪 API Test</h2>
+    <button onclick="testAPI()">Test API Now</button>
+    <div id="result"></div>
+    
+    <script>
+        // Show current URL info
+        const currentUrl = window.location.href;
+        const protocol = window.location.protocol;
+        const hostname = window.location.hostname;
+        
+        let urlInfo = '<h2>📍 Current URL Information</h2>';
+        
+        if (protocol === 'file:') {
+            urlInfo += `
+                <div class="wrong">
+                    <h3>❌ WRONG URL DETECTED!</h3>
+                    <p><strong>Current URL:</strong> ${currentUrl}</p>
+                    <p><strong>Protocol:</strong> ${protocol}</p>
+                    <p><strong>Problem:</strong> You're accessing the file directly, which doesn't execute PHP.</p>
+                    <p><strong>Solution:</strong> Open this URL instead:</p>
+                    <p style="font-size: 16px; font-weight: bold; color: #007bff;">
+                        http://localhost/infotess-nj/debug-test.html
+                    </p>
+                </div>
+            `;
+        } else if (hostname === 'localhost') {
+            urlInfo += `
+                <div class="correct">
+                    <h3>✅ CORRECT URL!</h3>
+                    <p><strong>Current URL:</strong> ${currentUrl}</p>
+                    <p><strong>Protocol:</strong> ${protocol}</p>
+                    <p><strong>Hostname:</strong> ${hostname}</p>
+                    <p><strong>Status:</strong> You're on the correct URL! API should work.</p>
+                </div>
+            `;
+        } else {
+            urlInfo += `
+                <div class="info">
+                    <h3>ℹ️ UNKNOWN URL</h3>
+                    <p><strong>Current URL:</strong> ${currentUrl}</p>
+                    <p><strong>Protocol:</strong> ${protocol}</p>
+                    <p><strong>Hostname:</strong> ${hostname}</p>
+                </div>
+            `;
+        }
+        
+        document.getElementById('url-info').innerHTML = urlInfo;
+        
+        // API Test function
+        async function testAPI() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p>🔄 Testing API...</p>';
+            
+            try {
+                const response = await fetch('/infotess-nj/api/v2/ping.php');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const result = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <div class="correct">
+                        <h3>✅ API SUCCESS!</h3>
+                        <p><strong>Status:</strong> ${response.status}</p>
+                        <pre>${JSON.stringify(result, null, 2)}</pre>
+                        <p><strong>Now try the full test suite:</strong></p>
+                        <a href="/infotess-nj/test-api.html" style="background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">
+                            Go to Full API Test
+                        </a>
+                    </div>
+                `;
+                
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="wrong">
+                        <h3>❌ API FAILED!</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p><strong>Current URL:</strong> ${window.location.href}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Auto-test if on correct URL
+        if (protocol === 'http:' && hostname === 'localhost') {
+            setTimeout(testAPI, 1000);
+        }
+    </script>
+</body>
+</html>

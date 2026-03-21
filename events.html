@@ -34,7 +34,7 @@
     <script src="js/components.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            fetch('api/public/events.php')
+            fetch('api/public/events')
                 .then(res => res.json())
                 .then(data => {
                     if (data.ok && data.events && data.events.length > 0) {

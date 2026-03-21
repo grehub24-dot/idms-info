@@ -80,7 +80,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // Load Payment History
-            fetch('../api/student/payments_list.php')
+            fetch('../api/student/payments_list')
                 .then(res => {
                     if (res.status === 401) {
                         window.location.href = '../login.html';
@@ -125,7 +125,7 @@
             }
 
             // Load unread badge
-            fetch('../api/student/dashboard_data.php')
+            fetch('../api/student/dashboard_data')
                 .then(res => res.json())
                 .then(data => {
                     if (data.ok && data.unread_count > 0) {

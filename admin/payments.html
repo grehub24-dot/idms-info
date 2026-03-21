@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payments - INFOTESS SDMS</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @media screen and (max-width: 992px) {
+            .sidebar { display: none; }
+            .sidebar.active { display: block; position: fixed; left: 0; top: 0; height: 100vh; z-index: 1001; }
+            .hamburger-dashboard { display: block !important; }
+        }
+        .toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .toolbar input[type="text"] { flex: 1; min-width: 220px; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header" style="text-align: center; padding: 20px 10px;">
+                <img src="../images/infotess.png" alt="INFOTESS Logo" style="width: 80px; height: 80px; margin-bottom: 10px; border-radius: 50%; background: #fff; padding: 5px;">
+                <h3>INFOTESS Admin</h3>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="students"><i class="fas fa-user-graduate"></i> Students</a></li>
+                <li><a href="payments" class="active"><i class="fas fa-money-bill-wave"></i> Payments</a></li>
+                <li><a href="reports"><i class="fas fa-chart-bar"></i> Reports</a></li>
+                <li><a href="verify"><i class="fas fa-qrcode"></i> Verify Receipt</a></li>
+                <li><a href="users"><i class="fas fa-users-cog"></i> User Management</a></li>
+                <li><a href="messaging"><i class="fas fa-envelope"></i> Messaging</a></li>
+                <li><a href="inbox"><i class="fas fa-inbox"></i> Inbox</a></li>
+                <li><a href="module_settings"><i class="fas fa-cogs"></i> Module Settings</a></li>
+                <li><a href="settings"><i class="fas fa-tools"></i> System Settings</a></li>
+                <li><a href="../logout.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar" style="display:flex; justify-content:space-between; align-items:center;">
+                <h2>Payments</h2>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <button id="add-payment-btn" class="btn-primary" style="padding: 10px 20px;"><i class="fas fa-plus"></i> Add Payment</button>
+                    <div class="hamburger-dashboard" style="display: none; cursor: pointer; font-size: 1.5rem;">
+                        <i class="fas fa-bars"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div id="error-message" style="display:none;" class="alert alert-danger"></div>
+
+            <div class="section" style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <div class="toolbar">
+                    <input type="text" id="index-filter" class="form-control" placeholder="Filter by index number">
+                    <input type="text" id="year-filter" class="form-control" placeholder="Academic Year e.g. 2025/2026" style="width: 200px;">
+                    <select id="semester-filter" class="form-control" style="width: 140px;">
+                        <option value="">All Semesters</option>
+                        <option value="1">Semester 1</option>
+                        <option value="2">Semester 2</option>
+                    </select>
+                    <select id="method-filter" class="form-control" style="width: 160px;">
+                        <option value="">All Methods</option>
+                        <option value="Cash">Cash</option>
+                        <option value="Mobile Money">Mobile Money</option>
+                        <option value="Bank Transfer">Bank Transfer</option>
+                    </select>
+                    <select id="limit" class="form-control" style="width: 120px;">
+                        <option value="25">25</option>
+                        <option value="50" selected>50</option>
+                        <option value="100">100</option>
+                        <option value="200">200</option>
+                    </select>
+                    <button id="refresh" class="btn-login" style="padding: 10px 14px;"><i class="fas fa-sync-alt"></i> Refresh</button>
+                </div>
+            </div>
+
+            <div class="section" style="background: white; padding: 20px; border-radius: 8px;">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Receipt #</th>
+                                <th>Index #</th>
+                                <th>Full Name</th>
+                                <th>Programme</th>
+                                <th>Amount (GHS)</th>
+                                <th>Level</th>
+                                <th>Class</th>
+                                <th>Stream</th>
+                                <th>Year</th>
+                                <th>Semester</th>
+                                <th>Date</th>
+                                <th>Method</th>
+                                <th>Receipt</th>
+                            </tr>
+                        </thead>
+                        <tbody id="payments-tbody">
+                            <tr><td colspan="8" style="text-align:center;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div id="payment-modal-overlay" style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
+                <div id="payment-modal" style="background: #fff; width: 95%; max-width: 700px; border-radius: 8px; overflow: hidden;">
+                    <div style="padding: 15px 20px; border-bottom: 1px solid #eee; display:flex; align-items:center; justify-content:space-between;">
+                        <h3 style="margin:0;">Record Payment</h3>
+                        <button id="payment-modal-close" style="border:none; background:none; font-size: 1.2rem; cursor: pointer;">×</button>
+                    </div>
+                    <div style="padding: 20px;">
+                        <div id="payment-modal-error" class="alert alert-danger" style="display:none;"></div>
+                        <form id="payment-form" style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div>
+                                <label>Index Number</label>
+                                <input type="text" name="index_number" id="pm_index_number" class="form-control" required placeholder="e.g., 5230100xxx">
+                            </div>
+                            <div>
+                                <label>Amount (GHS)</label>
+                                <input type="number" step="0.01" name="amount" class="form-control" required>
+                            </div>
+                            <div style="grid-column: 1 / -1;">
+                                <label>Programme / Department</label>
+                                <select name="programme" id="pm_programme" class="form-control" required>
+                                    <option value="">-- Select Programme --</option>
+                                    <optgroup label="Bachelor's Degree Programmes">
+                                        <option value="B.Sc. Information Technology">B.Sc. Information Technology</option>
+                                        <option value="B.Sc. Cyber Security and Digital Forensics">B.Sc. Cyber Security and Digital Forensics</option>
+                                        <option value="B.Ed. Computing with Artificial Intelligence (AI)">B.Ed. Computing with Artificial Intelligence (AI)</option>
+                                        <option value="B.Ed. Computing with Internet of Things (IOT)">B.Ed. Computing with Internet of Things (IOT)</option>
+                                        <option value="B.Ed. Information Technology">B.Ed. Information Technology</option>
+                                    </optgroup>
+                                    <optgroup label="Diploma Programmes">
+                                        <option value="Diploma in Cyber Security and Digital Forensics">Diploma in Cyber Security and Digital Forensics</option>
+                                        <option value="Diploma in Information Technology">Diploma in Information Technology</option>
+                                    </optgroup>
+                                    <optgroup label="Postgraduate Programmes">
+                                        <option value="M. Phil. Information Technology">M. Phil. Information Technology</option>
+                                        <option value="M. Sc. Information Technology Education">M. Sc. Information Technology Education</option>
+                                        <option value="M. Phil Information Technology (Top-up)">M. Phil Information Technology (Top-up)</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Level</label>
+                                <input type="text" name="level" id="pm_level" class="form-control" required placeholder="e.g., 300">
+                            </div>
+                            <div>
+                                <label>Class</label>
+                                <select name="class" id="pm_class" class="form-control" required>
+                                    <option value="">-- Select Class --</option>
+                                    <optgroup label="IT">
+                                        <option value="IT A">IT A</option><option value="IT B">IT B</option><option value="IT C">IT C</option><option value="IT D">IT D</option>
+                                        <option value="IT E">IT E</option><option value="IT F">IT F</option><option value="IT G">IT G</option><option value="IT H">IT H</option>
+                                    </optgroup>
+                                    <optgroup label="ITE">
+                                        <option value="ITE A">ITE A</option><option value="ITE B">ITE B</option><option value="ITE C">ITE C</option><option value="ITE D">ITE D</option>
+                                        <option value="ITE E">ITE E</option><option value="ITE F">ITE F</option><option value="ITE G">ITE G</option><option value="ITE H">ITE H</option>
+                                        <option value="ITE I">ITE I</option><option value="ITE J">ITE J</option><option value="ITE K">ITE K</option>
+                                    </optgroup>
+                                    <optgroup label="CB">
+                                        <option value="CB A">CB A</option><option value="CB B">CB B</option><option value="CB C">CB C</option><option value="CB D">CB D</option>
+                                        <option value="CB E">CB E</option><option value="CB F">CB F</option><option value="CB G">CB G</option><option value="CB H">CB H</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Stream</label>
+                                <select name="stream" id="pm_stream" class="form-control" required>
+                                    <option value="">-- Select Stream --</option>
+                                    <option value="Regular">Regular</option>
+                                    <option value="Sandwich">Sandwich</option>
+                                    <option value="Evening">Evening</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Academic Year</label>
+                                <input type="text" name="academic_year" class="form-control" placeholder="2025/2026" required>
+                            </div>
+                            <div>
+                                <label>Semester</label>
+                                <select name="semester" class="form-control" required>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Payment Date</label>
+                                <input type="date" name="payment_date" class="form-control" required>
+                            </div>
+                            <div>
+                                <label>Method</label>
+                                <select name="payment_method" class="form-control" required>
+                                    <option value="Cash">Cash</option>
+                                    <option value="Mobile Money">Mobile Money</option>
+                                    <option value="Bank Transfer">Bank Transfer</option>
+                                </select>
+                            </div>
+                            
+                            <div style="grid-column: 1 / -1; display:flex; gap:10px; justify-content:flex-end; margin-top: 5px;">
+                                <button type="button" id="payment-modal-cancel" class="btn-secondary" style="padding:10px 14px;">Cancel</button>
+                                <button type="submit" class="btn-login" style="padding:10px 14px;">Record Payment & Generate Receipt</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('infotess_token');
+            if (!token) {
+                window.location.href = '../login.html';
+                return;
+            }
+            const tbody = document.getElementById('payments-tbody');
+            const indexFilter = document.getElementById('index-filter');
+            const limitSelect = document.getElementById('limit');
+            const refreshBtn = document.getElementById('refresh');
+            const errorBox = document.getElementById('error-message');
+
+            function renderRows(rows) {
+                if (!rows || rows.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 20px;">No payments found.</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = rows.map(p => {
+                    const receiptHref = '../receipts/receipt_' + p.receipt_number + '.html';
+                    return `
+                        <tr>
+                            <td>${p.receipt_number}</td>
+                            <td>${p.index_number}</td>
+                            <td>${p.full_name}</td>
+                            <td>${p.department || ''}</td>
+                            <td>${parseFloat(p.amount).toFixed(2)}</td>
+                            <td>${p.level || ''}</td>
+                            <td>${p.class_name || ''}</td>
+                            <td>${p.stream || ''}</td>
+                            <td>${p.academic_year}</td>
+                            <td>${p.semester}</td>
+                            <td>${p.payment_date}</td>
+                            <td>${p.payment_method}</td>
+                            <td><a href="${receiptHref}" target="_blank" class="btn-secondary" style="padding:6px 10px; font-size:0.85rem;">View</a></td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            function fetchPayments() {
+                const idx = encodeURIComponent(indexFilter.value.trim());
+                const limit = encodeURIComponent(limitSelect.value);
+                const year = encodeURIComponent(document.getElementById('year-filter').value.trim());
+                const sem = encodeURIComponent(document.getElementById('semester-filter').value);
+                const method = encodeURIComponent(document.getElementById('method-filter').value);
+                const params = [
+                    `limit=${limit}`,
+                    idx ? `index_number=${idx}` : '',
+                    year ? `academic_year=${year}` : '',
+                    sem ? `semester=${sem}` : '',
+                    method ? `payment_method=${method}` : ''
+                ].filter(Boolean).join('&');
+                const url = `/api/admin/payments_list.php?${params}`;
+                return fetch(url, {
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+                .then(async res => {
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok || !data.ok) {
+                        throw new Error(data.error || `Request failed with status ${res.status}`);
+                    }
+                    return data;
+                })
+                .then(data => renderRows(data.payments))
+                .catch(err => {
+                    errorBox.style.display = 'block';
+                    errorBox.textContent = err.message || 'Failed to load payments.';
+                });
+            }
+
+            refreshBtn.addEventListener('click', fetchPayments);
+            limitSelect.addEventListener('change', fetchPayments);
+            indexFilter.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') fetchPayments();
+            });
+
+            fetchPayments();
+
+            const hamburger = document.querySelector('.hamburger-dashboard');
+            const sidebar = document.querySelector('.sidebar');
+            if (hamburger && sidebar) {
+                hamburger.addEventListener('click', () => {
+                    sidebar.classList.toggle('active');
+                });
+            }
+            
+            const paymentOverlay = document.getElementById('payment-modal-overlay');
+            const paymentOpenBtn = document.getElementById('add-payment-btn');
+            const paymentCloseBtn = document.getElementById('payment-modal-close');
+            const paymentCancelBtn = document.getElementById('payment-modal-cancel');
+            const paymentForm = document.getElementById('payment-form');
+            const paymentError = document.getElementById('payment-modal-error');
+            const pmIndexInput = document.getElementById('pm_index_number');
+            const pmProgramme = document.getElementById('pm_programme');
+            const pmLevel = document.getElementById('pm_level');
+            const pmClass = document.getElementById('pm_class');
+            const pmStream = document.getElementById('pm_stream');
+
+            function computeAcademicYear() {
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = now.getMonth() + 1;
+                if (month >= 8) return `${year}/${year + 1}`;
+                return `${year - 1}/${year}`;
+            }
+
+            function openPayment() { 
+                paymentError.style.display = 'none'; 
+                paymentError.textContent = ''; 
+                paymentForm.reset(); 
+                const ayInput = paymentForm.querySelector('input[name="academic_year"]');
+                if (ayInput) ayInput.value = computeAcademicYear();
+                const dateInput = paymentForm.querySelector('input[name="payment_date"]');
+                if (dateInput) dateInput.valueAsDate = new Date();
+                paymentOverlay.style.display = 'flex'; 
+            }
+            function closePayment() { paymentOverlay.style.display = 'none'; }
+            paymentOpenBtn.addEventListener('click', openPayment);
+            paymentCloseBtn.addEventListener('click', closePayment);
+            paymentCancelBtn.addEventListener('click', closePayment);
+
+            function fetchStudentPreview(indexNumber) {
+                if (!indexNumber) {
+                    return;
+                }
+                fetch('/api/admin/get_student_by_index.php?index_number=' + encodeURIComponent(indexNumber), {
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (!data || !data.ok || !data.student) {
+                        return;
+                    }
+                    const s = data.student;
+                    // Programme select
+                    if (pmProgramme) {
+                        let found = false;
+                        for (let i = 0; i < pmProgramme.options.length; i++) {
+                            if (pmProgramme.options[i].value === (s.department || '')) {
+                                pmProgramme.selectedIndex = i;
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found && s.department) {
+                            const option = document.createElement('option');
+                            option.value = s.department;
+                            option.textContent = s.department;
+                            pmProgramme.appendChild(option);
+                            pmProgramme.value = s.department;
+                        }
+                    }
+                    if (pmLevel) pmLevel.value = s.level || '';
+                    if (pmClass && s.class_name) pmClass.value = s.class_name;
+                    if (pmStream && s.stream) pmStream.value = s.stream;
+                })
+                .catch(() => {});
+            }
+
+            pmIndexInput.addEventListener('blur', () => fetchStudentPreview(pmIndexInput.value.trim()));
+            pmIndexInput.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') fetchStudentPreview(pmIndexInput.value.trim());
+            });
+
+            paymentForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const fd = new FormData(paymentForm);
+                const payload = {
+                    index_number: fd.get('index_number'),
+                    amount: parseFloat(fd.get('amount')),
+                    academic_year: fd.get('academic_year'),
+                    semester: String(fd.get('semester')),
+                    payment_date: fd.get('payment_date'),
+                    payment_method: fd.get('payment_method'),
+                    department: fd.get('programme') || null,
+                    level: fd.get('level') || null,
+                    class_name: fd.get('class') || null,
+                    stream: fd.get('stream') || null
+                };
+                const btns = paymentForm.querySelectorAll('button');
+                btns.forEach(b => b.disabled = true);
+                fetch('/api/admin/payments_create.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                })
+                .then(async res => {
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok || !data.ok) {
+                        throw new Error(data.error || `Request failed with status ${res.status}`);
+                    }
+                    return data;
+                })
+                .then(() => {
+                    closePayment();
+                    fetchPayments();
+                })
+                .catch(err => {
+                    paymentError.style.display = 'block';
+                    paymentError.textContent = err.message || 'Failed to record payment.';
+                })
+                .finally(() => {
+                    btns.forEach(b => b.disabled = false);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

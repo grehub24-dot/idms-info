@@ -86,7 +86,7 @@
                 message: document.getElementById('message').value
             };
 
-            fetch('api/public/contact.php', {
+            fetch('api/public/contact', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)

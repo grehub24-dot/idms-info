@@ -28,7 +28,7 @@
     <script src="js/components.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            fetch('api/public/projects.php')
+            fetch('api/public/projects')
                 .then(res => res.json())
                 .then(data => {
                     const container = document.getElementById('projects-container');

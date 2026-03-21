@@ -28,7 +28,7 @@
     <script src="js/components.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            fetch('api/public/executives.php')
+            fetch('api/public/executives')
                 .then(res => res.json())
                 .then(data => {
                     if (data.ok && data.executives && data.executives.length > 0) {

@@ -23,7 +23,7 @@
     <script src="js/components.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            fetch('api/public/activities.php')
+            fetch('api/public/activities')
                 .then(res => res.json())
                 .then(data => {
                     const container = document.getElementById('activities-container');

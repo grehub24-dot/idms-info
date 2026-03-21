@@ -15,13 +15,18 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            fetch('api/auth/logout.php', { method: 'POST' })
+            fetch('api/auth/logout', { method: 'POST' })
                 .then(() => {
+                    // Clear user data from local storage
+                    localStorage.removeItem('infotess_token');
+                    localStorage.removeItem('infotess_user');
                     // Redirect to login page after successful logout
                     window.location.href = 'login.html';
                 })
                 .catch(() => {
-                    // Fallback redirect even if fetch fails
+                    // Even if the server logout fails, clear local storage and redirect
+                    localStorage.removeItem('infotess_token');
+                    localStorage.removeItem('infotess_user');
                     window.location.href = 'login.html';
                 });
         });

@@ -94,7 +94,7 @@
                 }).join('');
             };
 
-            fetch('api/public/department.php')
+            fetch('api/public/department')
                 .then(res => res.json())
                 .then(data => {
                     if (data.ok) {

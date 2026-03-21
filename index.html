@@ -51,7 +51,7 @@
     <script src="js/components.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            fetch('api/public/activities.php?limit=3')
+            fetch('api/public/activities?limit=3')
                 .then(res => res.json())
                 .then(data => {
                     const container = document.getElementById('activities-container');
